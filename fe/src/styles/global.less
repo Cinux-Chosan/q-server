@@ -1,0 +1,16 @@
+.clearfix{
+  &::after{
+    content: '';
+    display: block;
+    height: 0;
+    clear: both;
+  }
+}
+
+.ellipsis {
+  overflow: hidden;
+  word-wrap: nowrap;
+  word-break: break-all;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

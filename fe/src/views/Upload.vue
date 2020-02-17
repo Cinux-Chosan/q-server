@@ -2,22 +2,22 @@
   <UploadDragger
     name="file"
     :multiple="true"
-    action="/api/upload"
+    :action="uploadUrl"
     @change="handleChange"
+    :data="$route.query"
+    :showUploadList="{ showRemoveIcon: false }"
   >
     <p class="ant-upload-drag-icon">
       <Icon type="inbox" />
     </p>
     <p class="ant-upload-text">点击或将文件拖动到此处进行上传</p>
-    <p class="ant-upload-hint">
-      支持单文件或批量文件上传
-    </p>
+    <p class="ant-upload-hint">请上传大小不超过 <b>{{fileSizeLimit.toUpperCase()}}</b> 的文件</p>
   </UploadDragger>
 </template>
 <script>
 import { Upload, Icon } from "ant-design-vue";
 
-const { Dragger: UploadDragger } = Upload
+const { Dragger: UploadDragger } = Upload;
 
 export default {
   components: {
@@ -27,16 +27,25 @@ export default {
   data() {
     return {};
   },
+  computed: {
+    uploadUrl() {
+      return `/api/upload`;
+    },
+    fileSizeLimit() {
+      return this.$store.state.config.limit;
+    }
+  },
   methods: {
     handleChange(info) {
-      const status = info.file.status;
+      const { file, fileList } = info;
+      const status = file.status;
       if (status !== "uploading") {
-        console.log(info.file, info.fileList);
+        console.log(file, fileList);
       }
       if (status === "done") {
-        this.$message.success(`${info.file.name} file uploaded successfully.`);
+        this.$message.success(`${file.name} 上传成功！`);
       } else if (status === "error") {
-        this.$message.error(`${info.file.name} file upload failed.`);
+        this.$message.error(`${file.name} 上传失败: ${file.response}`);
       }
     }
   }

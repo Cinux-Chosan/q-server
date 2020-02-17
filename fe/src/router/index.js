@@ -6,15 +6,15 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
-    name: "Home",
-    component: Home
-  },
-  {
     path: "/upload",
     name: "Upload",
     component: () =>
       import(/* webpackChunkName: "upload" */ "../views/Upload.vue")
+  },
+  {
+    path: "*",
+    name: "Home",
+    component: Home
   }
 ];
 
