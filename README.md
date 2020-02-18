@@ -41,7 +41,7 @@
 
 - 在 8000 端口启动服务，可上传大小为 20M 的文件，30 分钟后自动关闭：`server -p 8000 -l 20m -k 30m`
 
-![example_home](https://raw.githubusercontent.com/Cinux-Chosan/q-server/master/example/example1.jpeg)
-![example_upload](https://raw.githubusercontent.com/Cinux-Chosan/q-server/master/example/example2.jpeg)
+![example_home](https://raw.githubusercontent.com/Cinux-Chosan/git-statics/master/%40chosan/server/example1.jpeg)
+![example_upload](https://raw.githubusercontent.com/Cinux-Chosan/git-statics/master/%40chosan/server/example2.jpeg)
 
 **所有参数均可任意搭配，更多功能敬请期待**
