@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <ul class="fileList">
+    <ul class="fileList clearfix">
       <li
         v-for="file in filterdFileList"
         :key="file.fullPath"
@@ -17,6 +17,7 @@
           <template slot="content">
             <div class="popoverContent">
               <p>文件名：{{file.basename}}</p>
+              <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
               <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
               <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
             </div>
@@ -32,12 +33,14 @@
         </template>
       </li>
     </ul>
+    <Empty description="空空如也~" v-if="isEmpty" />
   </div>
 </template>
 
 <script>
-import { Popover } from "ant-design-vue";
+import { Popover, Empty } from "ant-design-vue";
 import moment from "moment";
+import bytes from "bytes";
 import request from "@req";
 import SvgIcon from "@comp/SvgIcon";
 import iconMap from "@icons/map";
@@ -53,24 +56,18 @@ export default {
   },
   components: {
     Popover,
+    Empty,
     SvgIcon
   },
   watch: {
     "$route.query.dir": {
-      immediate: true,
       async handler() {
-        const fileList = await this.getFileList(this.currentPath);
-        if (!this.isRoot) {
-          fileList.unshift({
-            path: "..",
-            basename: "..",
-            fullPath: "..",
-            isDir: true
-          });
-        }
-        this.$store.commit("updateFileList", fileList);
+        this.updateFileList()
       }
     }
+  },
+  activated() {
+    this.updateFileList()
   },
   computed: {
     currentPath() {
@@ -81,12 +78,33 @@ export default {
     },
     filterdFileList() {
       return this.$store.getters.filterdFileList;
+    },
+    isEmpty() {
+      return !this.filterdFileList.filter(el => el.path !== "..").length;
     }
   },
   methods: {
     async getFileList(path) {
       const fileList = await request("/api/files", { path });
       return fileList;
+    },
+    async updateFileList() {
+      let fileList = [];
+        const parentDir = {
+          path: "..",
+          basename: "..",
+          fullPath: "..",
+          isDir: true
+        };
+        if (!this.isRoot) {
+          fileList.unshift(parentDir);
+        }
+        try {
+          fileList = fileList.concat(await this.getFileList(this.currentPath));
+        } catch (err) {
+          this.$message.error(err.message);
+        }
+        this.$store.commit("updateFileList", fileList);
     },
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
@@ -112,7 +130,8 @@ export default {
     },
     formatTime(time) {
       return moment(time).format("YYYY/MM/DD HH:mm:ss");
-    }
+    },
+    bytes
   }
 };
 </script>
@@ -139,6 +158,11 @@ export default {
   .iconItem {
     transition: all ease 0.1s;
     font-size: 60px;
+  }
+}
+.popoverContent {
+  p:last-child {
+    margin-bottom: 0;
   }
 }
 </style>

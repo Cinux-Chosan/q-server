@@ -1,7 +1,7 @@
 <template>
   <div>
     <InputSearch
-      placeholder="input search text"
+      placeholder="搜索"
       class="inputSearch"
       :value="$store.state.searchText"
       @change="onSearch"

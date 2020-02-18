@@ -4,15 +4,18 @@ const args = require("../libs/args");
 
 module.exports = exports = {
   post: async ctx => {
+    if (!args.upload) {
+      ctx.throw(500, '未开启文件上传功能', { expose: true })
+    }
     const { request } = ctx;
-    const dirPath = request.body.dir;
+    const { dir: dirPath = "/" } = request.body;
     const tempFilePath = request.files["file"]["path"];
     const fileName = request.files["file"]["name"];
     const extName = path.extname(fileName);
     const baseName = path.basename(fileName, extName);
     let count = 0;
     let writePath = path.join(args.dir, dirPath, fileName);
-    // 文件名已存在检测
+    // 已存在文件名检测
     while (fs.existsSync(writePath)) {
       writePath = path.join(
         args.dir,
@@ -25,7 +28,9 @@ module.exports = exports = {
     reader
       .on("end", () => {
         fs.unlink(tempFilePath, () =>
-          console.log(`文件 ${fileName} 上传已完成，临时文件 ${tempFilePath} 已移除`)
+          console.log(
+            `文件 ${fileName} 上传已完成，临时文件 ${tempFilePath} 已移除`
+          )
         );
       })
       .pipe(writer);

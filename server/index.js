@@ -7,18 +7,15 @@ const bytes = require("bytes");
 const { address } = require("ip");
 const router = require("./router");
 const args = require("./libs/args");
+const { error, log, http } = require("./libs/debug");
 
 const app = new Koa();
 
 app
-  // .use((ctx, next) =>{
-  //   return next().catch(err => {
-  //     return ctx.body = {
-  //       success: false,
-  //       message: err.message
-  //     }
-  //   })
-  // })
+  .use((ctx, next) => {
+    http(`\t${ctx.path} from \t${ctx.ip}`);
+    return next();
+  })
   .use(
     koaBody({
       multipart: true,
@@ -27,6 +24,7 @@ app
       },
       onError(err) {
         err.message = `文件大小超出后台设置的 ${args.limit} 限制`;
+        err.expose = true;
         throw err;
       }
     })
@@ -45,13 +43,12 @@ app
   .use(router.routes())
   .use(router.allowedMethods())
   .use(async ctx => {
+    // 其他路由全返回页面
     await send(ctx, "fedist/index.html", { root: __dirname });
   })
-  .on("error", (err, ctx) => {
-    return (err.expose = true);
+  .on("error", err => {
+    error(err.message);
   })
   .listen(args.port, () => {
-    console.log(
-      `\n\t please visit http://${address()}:${args.port} to download files`
-    );
+    log(`please visit http://${address()}:${args.port} to download files`);
   });

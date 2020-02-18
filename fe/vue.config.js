@@ -3,12 +3,10 @@ const { resolve } = path;
 
 module.exports = {
   outputDir: path.join(__dirname, "../server/fedist"),
+  productionSourceMap: false,
   devServer: {
     proxy: {
       "^/api": {
-        target: "http://localhost:8888"
-      },
-      "^/download": {
         target: "http://localhost:8888"
       }
     },
@@ -25,6 +23,10 @@ module.exports = {
     }
   },
   chainWebpack(config) {
+    config
+      .entry("app")
+      .prepend("@babel/polyfill")
+      .end();
     config.module
       .rule("svg")
       .exclude.add(resolve("src/Icons"))

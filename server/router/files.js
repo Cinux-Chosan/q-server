@@ -1,4 +1,3 @@
-const glob = require("glob");
 const readdirp = require("readdirp");
 const path = require("path");
 const args = require("../libs/args");
@@ -20,6 +19,7 @@ module.exports = exports = {
         return {
           ...file,
           fileExt: path.extname(file.fullPath),
+          fullPath: path.relative(args.dir, file.fullPath),
           isDir: file.stats.isDirectory()
         };
       });

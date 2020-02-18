@@ -17,7 +17,9 @@
       </div>
       <Search v-show="$route.path === '/'" class="navSearch" />
     </div>
-    <router-view />
+    <keep-alive>
+      <router-view />
+    </keep-alive>
     <BackTop />
   </div>
 </template>

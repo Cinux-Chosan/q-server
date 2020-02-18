@@ -1,18 +1,23 @@
 <template>
-  <UploadDragger
-    name="file"
-    :multiple="true"
-    :action="uploadUrl"
-    @change="handleChange"
-    :data="$route.query"
-    :showUploadList="{ showRemoveIcon: false }"
-  >
-    <p class="ant-upload-drag-icon">
-      <Icon type="inbox" />
-    </p>
-    <p class="ant-upload-text">点击或将文件拖动到此处进行上传</p>
-    <p class="ant-upload-hint">请上传大小不超过 <b>{{fileSizeLimit.toUpperCase()}}</b> 的文件</p>
-  </UploadDragger>
+  <div class="uploadDraggerContainer">
+    <UploadDragger
+      name="file"
+      :multiple="true"
+      :action="uploadUrl"
+      @change="handleChange"
+      :data="$route.query"
+      :showUploadList="{ showRemoveIcon: false }"
+    >
+      <p class="ant-upload-drag-icon">
+        <Icon type="inbox" />
+      </p>
+      <p class="ant-upload-text">点击或将文件拖动到此处进行上传</p>
+      <p class="ant-upload-hint">
+        请上传大小不超过
+        <b>{{fileSizeLimit.toUpperCase()}}</b> 的文件
+      </p>
+    </UploadDragger>
+  </div>
 </template>
 <script>
 import { Upload, Icon } from "ant-design-vue";
@@ -51,3 +56,10 @@ export default {
   }
 };
 </script>
+
+<style lang="less">
+.uploadDraggerContainer {
+  margin-top: 40px;
+  height: 250px;
+}
+</style>

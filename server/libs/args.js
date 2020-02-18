@@ -1,5 +1,7 @@
 const yargs = require("yargs");
 const bytes = require("bytes");
+const toMs = require("millisecond");
+const path = require("path");
 
 yargs.options({
   port: {
@@ -10,7 +12,8 @@ yargs.options({
   dir: {
     alias: "d",
     default: process.cwd(),
-    describe: "文件服务根目录，默认为执行命令的当前目录"
+    describe: "文件服务根目录，默认为执行命令的当前目录",
+    coerce: dir => (path.isAbsolute(dir) ? dir : path.join(process.cwd(), dir))
   },
   upload: {
     alias: "u",
@@ -21,7 +24,13 @@ yargs.options({
   kill: {
     alias: "k",
     default: -1,
-    describe: "自动关闭时间，单位 s（秒）"
+    type: "string",
+    describe: "自动关闭时间（ms, s, m, h, d, w, y），默认单位 h（小时）",
+    coerce: killTime => {
+      const ms = Number(killTime) ? toMs(`${killTime} h`) : toMs(killTime);
+      ms > 0 && setTimeout(() => process.exit(0), ms);
+      return ms;
+    }
   },
   hidden: {
     alias: "h",
