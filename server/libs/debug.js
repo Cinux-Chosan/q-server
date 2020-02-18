@@ -1,11 +1,11 @@
 const debug = require("debug");
 
-const qCmd = debug("q-cmd");
+const server = debug("server");
 
 module.exports = exports = {
-  log: qCmd.extend("log"),
-  http: qCmd.extend("http:"),
-  error: qCmd.extend("error:")
+  log: server.extend("log"),
+  http: server.extend("http:"),
+  error: server.extend("error:")
 };
 
-debug.enable("q-cmd:*");
+debug.enable("server:*");
