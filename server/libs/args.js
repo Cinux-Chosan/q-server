@@ -1,6 +1,7 @@
 const yargs = require("yargs");
 const bytes = require("bytes");
 const toMs = require("millisecond");
+const package = require("../../package");
 const path = require("path");
 
 yargs.options({
@@ -43,6 +44,11 @@ yargs.options({
     default: "200mb",
     describe: "允许上传的文件大小（B, KB, MB, GB, TB, PB ...），默认单位：B",
     coerce: limit => (Number(limit) ? bytes(limit) : limit)
+  },
+  title: {
+    alias: "t",
+    default: package.name,
+    describe: "网页标题"
   }
 });
 

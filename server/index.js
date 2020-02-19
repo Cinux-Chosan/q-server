@@ -1,18 +1,24 @@
 const Koa = require("koa");
 const path = require("path");
 const send = require("koa-send");
+const fs = require("fs");
 const koaBody = require("koa-body"); //解析上传文件的插件
 const koaStatic = require("koa-static");
 const bytes = require("bytes");
 const { address } = require("ip");
+const cheerio = require("cheerio");
 const router = require("./router");
 const args = require("./libs/args");
 const { error, log, http } = require("./libs/debug");
 
 const app = new Koa();
 
+// 缓存 index.html 内容
+const indexFileContent = getIndexFileCache();
+
 app
   .use((ctx, next) => {
+    // 打印每次请求信息
     http(`\t${ctx.path} from \t${ctx.ip}`);
     return next();
   })
@@ -30,7 +36,7 @@ app
     })
   )
   .use(koaStatic(args.dir, { index: false, hidden: !!args.hidden }))
-  .use(koaStatic(path.join(__dirname, "fedist")))
+  .use(koaStatic(path.join(__dirname, "www"), { index: false }))
   .use((ctx, next) => {
     // 对接口进行越权检查
     const destPath = path.join(args.dir, ctx.request.body.dir || ".");
@@ -42,9 +48,9 @@ app
   })
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(async ctx => {
+  .use(ctx => {
     // 其他路由全返回页面
-    await send(ctx, "fedist/index.html", { root: __dirname });
+    return (ctx.body = indexFileContent);
   })
   .on("error", err => {
     error(err.message);
@@ -52,3 +58,13 @@ app
   .listen(args.port, () => {
     log(`please visit http://${address()}:${args.port} to download files`);
   });
+
+/**
+ * 根据命令行参数修改 index.html#title
+ */
+function getIndexFileCache() {
+  const content = fs.readFileSync("www/index.html", { encoding: "utf8" });
+  const $ = cheerio.load(content);
+  $("title").text(args.title);
+  return $.html();
+}

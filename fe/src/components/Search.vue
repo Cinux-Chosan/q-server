@@ -10,6 +10,7 @@
 </template>
 <script>
 import { Input } from "ant-design-vue";
+// import { debounce } from "@utils/decorator";
 const { Search: InputSearch } = Input;
 
 export default {
@@ -17,6 +18,7 @@ export default {
     InputSearch
   },
   methods: {
+    // @debounce(200)
     onSearch(evt) {
       this.$store.commit("updateSearchText", evt.target.value);
     }

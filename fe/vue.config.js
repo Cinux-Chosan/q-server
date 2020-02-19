@@ -2,7 +2,7 @@ const path = require("path");
 const { resolve } = path;
 
 module.exports = {
-  outputDir: path.join(__dirname, "../server/fedist"),
+  outputDir: path.join(__dirname, "../server/www"),
   productionSourceMap: false,
   devServer: {
     proxy: {

@@ -14,7 +14,7 @@
           :mouseEnterDelay="1"
           v-if="file.path !== '..'"
         >
-          <template slot="content">
+          <template #content>
             <div class="popoverContent">
               <p>文件名：{{file.basename}}</p>
               <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
@@ -22,10 +22,11 @@
               <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
             </div>
           </template>
-          <div>
+          <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
+          <a class="block" :href="copyUrl(file)" @click.prevent>
             <SvgIcon :icon-class="file | fileType" class="iconItem" />
             <p class="fileName ellipsis">{{file.basename}}</p>
-          </div>
+          </a>
         </Popover>
         <template v-else>
           <SvgIcon :icon-class="file | fileType" class="iconItem" />
@@ -62,12 +63,13 @@ export default {
   watch: {
     "$route.query.dir": {
       async handler() {
-        this.updateFileList()
+        await this.updateFileList();
+        this.$store.commit("updateSearchText", "");
       }
     }
   },
   activated() {
-    this.updateFileList()
+    this.updateFileList();
   },
   computed: {
     currentPath() {
@@ -90,21 +92,21 @@ export default {
     },
     async updateFileList() {
       let fileList = [];
-        const parentDir = {
-          path: "..",
-          basename: "..",
-          fullPath: "..",
-          isDir: true
-        };
-        if (!this.isRoot) {
-          fileList.unshift(parentDir);
-        }
-        try {
-          fileList = fileList.concat(await this.getFileList(this.currentPath));
-        } catch (err) {
-          this.$message.error(err.message);
-        }
-        this.$store.commit("updateFileList", fileList);
+      const parentDir = {
+        path: "..",
+        basename: "..",
+        fullPath: "..",
+        isDir: true
+      };
+      if (!this.isRoot) {
+        fileList.unshift(parentDir);
+      }
+      try {
+        fileList = fileList.concat(await this.getFileList(this.currentPath));
+      } catch (err) {
+        this.$message.error(err.message);
+      }
+      this.$store.commit("updateFileList", fileList);
     },
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
@@ -120,6 +122,19 @@ export default {
         } else {
           window.open(dir);
         }
+      }
+    },
+    copyUrl(file) {
+      if (file.isDir) {
+        const { query, ...rest } = this.$route;
+        const { dir = "/" } = query;
+        const { href } = this.$router.resolve({
+          ...rest,
+          query: { ...query, dir: path.join(dir, file.basename) }
+        });
+        return href;
+      } else {
+        return file.fullPath;
       }
     }
   },
