@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #begin {
+            width: 5px;
+            height: 5px;
+            background-color: red;
+            position: fixed;
+        }
+
+        #end {
+            width: 5px;
+            height: 5px;
+            position: fixed;
+            left: 100px;
+            top: 100px;
+            background-color: black;
+        }
+
+        #content {
+            width: 40px;
+            height: 30px;
+            background-color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div id="begin"></div>
+    </div>
+
+    
+    <div id="end"></div>
+    <div id="content"></div>
+
+    <script>
+        const begin = document.getElementById('begin')
+        const end = document.getElementById('end')
+        const range = document.createRange()
+        range.setStartBefore(begin)
+        range.setEndAfter(end)
+        debugger
+
+    </script>
+</body>
+
+</html>

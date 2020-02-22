@@ -1,19 +1,18 @@
 <template>
   <div class="home">
     <ul class="fileList clearfix">
+      <li @dblclick="onDirChange('..', true)" class="fileItem" v-if="showParentDir">
+        <SvgIcon icon-class="dir" class="iconItem" />
+        <p class="fileName ellipsis">..</p>
+      </li>
       <li
-        v-for="file in filterdFileList"
+        v-for="(file, index) in filesFiltered"
         :key="file.fullPath"
-        @click="onDirChange(file.path, file.isDir)"
-        class="fileItem"
+        @click="setSelect(file, index, $event)"
+        @dblclick="onDirChange(file.path, file.isDir)"
+        :class="['fileItem', file.selected ? 'selected' : '']"
       >
-        <Popover
-          title
-          placement="topLeft"
-          arrowPointAtCenter
-          :mouseEnterDelay="1"
-          v-if="file.path !== '..'"
-        >
+        <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
           <template #content>
             <div class="popoverContent">
               <p>文件名：{{file.basename}}</p>
@@ -23,15 +22,13 @@
             </div>
           </template>
           <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-          <a class="block" :href="copyUrl(file)" @click.prevent>
-            <SvgIcon :icon-class="file | fileType" class="iconItem" />
-            <p class="fileName ellipsis">{{file.basename}}</p>
-          </a>
+          <ContextMenu :file="file" :filesSelected="filesSelected" @updateSelected="updateSelected">
+            <a class="block" :href="gerHref(file)" @click.prevent>
+              <SvgIcon :icon-class="file | fileType" class="iconItem" />
+              <p class="fileName ellipsis">{{file.basename}}</p>
+            </a>
+          </ContextMenu>
         </Popover>
-        <template v-else>
-          <SvgIcon :icon-class="file | fileType" class="iconItem" />
-          <p class="fileName ellipsis">{{file.basename}}</p>
-        </template>
       </li>
     </ul>
     <Empty description="空空如也~" v-if="isEmpty" />
@@ -39,26 +36,34 @@
 </template>
 
 <script>
-import { Popover, Empty } from "ant-design-vue";
+import path from "path";
 import moment from "moment";
 import bytes from "bytes";
 import request from "@req";
 import SvgIcon from "@comp/SvgIcon";
+import ContextMenu from "@comp/ContextMenu";
 import iconMap from "@icons/map";
-import path from "path";
+import { Popover, Empty } from "ant-design-vue";
+import { isNull } from "@utils";
+
+const originData = {
+  rangeBegin: null
+};
 
 export default {
   name: "Home",
   data() {
     return {
       path: location.pathname,
-      fileList: []
+      showParentDir: false,
+      ...originData
     };
   },
   components: {
     Popover,
     Empty,
-    SvgIcon
+    SvgIcon,
+    ContextMenu
   },
   watch: {
     "$route.query.dir": {
@@ -66,6 +71,10 @@ export default {
         await this.updateFileList();
         this.$store.commit("updateSearchText", "");
       }
+    },
+    filesFiltered() {
+      this.showParentDir =
+        this.$route.query.dir && this.$route.query.dir !== "/";
     }
   },
   activated() {
@@ -75,38 +84,36 @@ export default {
     currentPath() {
       return decodeURIComponent(this.$route.query.dir || "/");
     },
-    isRoot() {
-      return this.currentPath === "/";
-    },
-    filterdFileList() {
+    filesFiltered() {
       return this.$store.getters.filterdFileList;
     },
+    filesSelected() {
+      return this.filesFiltered.filter(({ selected }) => selected);
+    },
     isEmpty() {
-      return !this.filterdFileList.filter(el => el.path !== "..").length;
+      return !this.filesFiltered.length;
     }
   },
   methods: {
-    async getFileList(path) {
-      const fileList = await request("/api/files", { path });
-      return fileList;
+    reset(o) {
+      Object.assign(this, originData, o);
     },
-    async updateFileList() {
+    async getFileList(path) {
       let fileList = [];
-      const parentDir = {
-        path: "..",
-        basename: "..",
-        fullPath: "..",
-        isDir: true
-      };
-      if (!this.isRoot) {
-        fileList.unshift(parentDir);
-      }
       try {
-        fileList = fileList.concat(await this.getFileList(this.currentPath));
+        fileList = (await request("/api/files", { path })) || [];
       } catch (err) {
         this.$message.error(err.message);
       }
-      this.$store.commit("updateFileList", fileList);
+      return fileList;
+    },
+    async updateFileList() {
+      try {
+        const fileList = (await this.getFileList(this.currentPath)) || [];
+        this.$store.commit("updateFileList", fileList);
+      } catch (err) {
+        this.$message.error(err.message);
+      }
     },
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
@@ -122,9 +129,10 @@ export default {
         } else {
           window.open(dir);
         }
+        this.reset();
       }
     },
-    copyUrl(file) {
+    gerHref(file) {
       if (file.isDir) {
         const { query, ...rest } = this.$route;
         const { dir = "/" } = query;
@@ -136,6 +144,68 @@ export default {
       } else {
         return file.fullPath;
       }
+    },
+
+    // 同时设置多个元素的选中状态
+    setMany(list = [], selected, ...excludes) {
+      const includes = list.filter(file => !excludes.includes(file));
+      includes.forEach(
+        file =>
+          !!file.selected !== selected && this.$set(file, "selected", selected)
+      );
+      excludes.forEach(
+        file =>
+          !!file.selected === selected && this.$set(file, "selected", !selected)
+      );
+    },
+    // 设置选中，取消选中状态
+    setSelect(file, index, evt) {
+      /**
+       * 如果没有起始点，则设置起始点
+       * 如果有起始点，则：
+       * * 如果没按住 shift，则重置起始点
+       * * 如果按住 shift，则不重置起始点
+       */
+      let { filesFiltered, rangeBegin, filesSelected } = this;
+      if (isNull(rangeBegin) || !evt.shiftKey) {
+        this.rangeBegin = rangeBegin = index;
+      }
+
+      // 本轮需要被选中的值
+      let currentSelected = [...filesSelected];
+
+      if (evt.metaKey || evt.ctrlKey) {
+        // 设置多选状态
+        if (file.selected) {
+          currentSelected = currentSelected.filter(f => f !== file);
+        } else {
+          currentSelected.push(file);
+        }
+      } else if (evt.shiftKey) {
+        // 设置范围多选状态
+        const beginIndex = Math.min(rangeBegin, index);
+        const endIndex = Math.max(rangeBegin, index);
+        currentSelected = [];
+        filesFiltered.forEach((file, idx) => {
+          if (idx >= beginIndex && idx <= endIndex) {
+            currentSelected.push(file);
+          }
+        });
+      } else {
+        if (currentSelected.length > 1) {
+          // 如果当前页面已经有多个元素被选中，则取消其他元素的选中
+          currentSelected = [file];
+        } else {
+          // 如果没有多个元素被选中，则看是否选中当前元素
+          currentSelected = file.selected ? [] : [file];
+        }
+      }
+
+      // 统一设置选中状态
+      this.setMany(filesFiltered, false, ...currentSelected);
+    },
+    updateSelected(selectedList) {
+      this.setMany(this.filesFiltered, false, ...selectedList);
     }
   },
   filters: {
@@ -164,15 +234,23 @@ export default {
   overflow: hidden;
   cursor: pointer;
   margin: 5px;
+  padding-top: 10px;
+  position: relative;
+  border-radius: 5px;
+  &.selected,
   &:hover {
+    background: rgba(13, 10, 49, 0.1);
     .iconItem {
-      font-size: 80px;
+      // font-size: 80px;
     }
   }
 
   .iconItem {
     transition: all ease 0.1s;
     font-size: 60px;
+  }
+  .fileName {
+    user-select: none;
   }
 }
 .popoverContent {
