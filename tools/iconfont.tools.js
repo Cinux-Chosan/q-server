@@ -15,3 +15,8 @@ function wait(time) {
     }
   }
 );
+
+["DOC", "PPT", "MOV", "FLV", "GIF", "PSD", "TTF", "HTML", "SQL"].reduce(
+  (prev, next) => `${prev}.${next.toLowerCase()}:${next.toLowerCase()},`,
+  ""
+);

@@ -58,8 +58,8 @@ app
   .use(ctx => {
     // 其他路由全返回页面
     return (ctx.body = isDev
-      ? indexFileContent || (indexFileContent = getIndexFileCache())
-      : getIndexFileCache());
+      ? getIndexFileCache()
+      : indexFileContent || (indexFileContent = getIndexFileCache()));
   })
   .on("error", err => {
     error(err.message);

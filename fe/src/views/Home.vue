@@ -232,7 +232,7 @@ export default {
     width: @size;
     height: @size;
     margin: 5px;
-    padding-top: 10px;
+    padding: 10px 4px;
     float: left;
     overflow: hidden;
     cursor: pointer;

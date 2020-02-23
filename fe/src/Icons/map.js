@@ -1,9 +1,9 @@
 // icon 与 svg 图片映射
 
 export default {
-
   // 来自 iconfont.js
-  
+  // iconfont-1
+
   ".aiff": "aiff",
   ".amr": "amr",
   ".amiga": "amiga",
@@ -176,6 +176,36 @@ export default {
   ".3g2": "3g2",
   ".adt": "adt",
   ".aac": "aac",
+
+  // iconfont-2
+
+  ".svg": "svg",
+  ".cdr": "cdr",
+  ".html": "html",
+  ".css": "css",
+  ".mp3": "mp3",
+  ".iso": "iso",
+  ".csv": "csv",
+  ".json": "json",
+  ".js": "js",
+  ".eps": "eps",
+  ".jar": "jar",
+  ".aac": "aac",
+  ".pdf": "pdf",
+  ".php": "php",
+  ".txt": "txt",
+  ".xls": "xls",
+  ".dll": "dll",
+  ".avi": "avi",
+  ".doc": "doc",
+  ".ppt": "ppt",
+  ".mov": "mov",
+  ".flv": "flv",
+  ".gif": "gif",
+  ".psd": "psd",
+  ".ttf": "ttf",
+  ".html": "html",
+  ".sql": "sql",
 
   // 来自 ./svg
 
