@@ -62,6 +62,7 @@ export const copyTextToClipBoard = text => {
   const textarea = document.createElement("textarea"); //创建input对象
   const currentFocus = document.activeElement; //当前获得焦点的元素
   document.body.appendChild(textarea); //添加元素
+  textarea.className = "outOfViewport";
   textarea.value = text;
   textarea.focus();
   if (textarea.setSelectionRange) {
