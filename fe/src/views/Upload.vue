@@ -1,5 +1,9 @@
 <template>
   <div class="uploadDraggerContainer">
+    <p>
+      当前会上传到
+      <Breadcrumb class="breadcrumb" />目录
+    </p>
     <UploadDragger
       name="file"
       :multiple="true"
@@ -20,6 +24,7 @@
   </div>
 </template>
 <script>
+import Breadcrumb from "@comp/Breadcrumb";
 import { Upload, Icon } from "ant-design-vue";
 
 const { Dragger: UploadDragger } = Upload;
@@ -27,6 +32,7 @@ const { Dragger: UploadDragger } = Upload;
 export default {
   components: {
     UploadDragger,
+    Breadcrumb,
     Icon
   },
   data() {
@@ -57,9 +63,12 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .uploadDraggerContainer {
-  margin-top: 40px;
   height: 250px;
+  .breadcrumb {
+    display: inline-block;
+    margin: 0 .5em;
+  }
 }
 </style>

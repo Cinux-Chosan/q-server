@@ -1,21 +1,25 @@
 <template>
   <Dropdown :trigger="['contextmenu']" @visibleChange="visibleChange" v-model="showContextMenu">
-    <slot />
+    <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
+    <a class="block" ref="link" :href="getHref()" @click.prevent>
+      <slot />
+    </a>
     <Menu slot="overlay">
-      <MenuItem key="0" @click="download">{{isBatch ? '合并下载' : '下载'}}</MenuItem>
-      <MenuItem key="1" @click="download(true)" v-if="isBatch">逐个下载</MenuItem>
-      <MenuItem key="2" @click="goToUpload" v-if="$store.state.config.uploadable">上传</MenuItem>
-      <Divider />
-      <MenuItem key="3">拷贝名称</MenuItem>
-      <MenuItem key="4">拷贝地址</MenuItem>
+      <MenuItem key="open" v-if="!isBatch" @click="open">打开</MenuItem>
+      <MenuItem key="batchDownload" @click="download()">{{isBatch ? '合并下载' : '下载'}}</MenuItem>
+      <MenuItem key="seperateDownload" @click="download(true)" v-if="isBatch">逐个下载</MenuItem>
+      <MenuItem key="toUpload" @click="goToUpload" v-if="isShowDownload">上传</MenuItem>
+      <Divider v-show="false" />
+      <MenuItem key="copyName" v-if="!isBatch" @click="copyName">拷贝名称</MenuItem>
+      <MenuItem key="copyUrl" v-if="!isBatch" @click="copyHref">拷贝地址</MenuItem>
     </Menu>
   </Dropdown>
 </template>
 
 
 <script>
-import request from "@req";
 import path from "path";
+import { download as doDownload, copyTextToClipBoard } from "@utils";
 import { Dropdown, Menu } from "ant-design-vue";
 const { Item: MenuItem, Divider } = Menu;
 
@@ -44,45 +48,41 @@ export default {
   computed: {
     isBatch() {
       return this.filesSelected.length > 1;
+    },
+    isShowDownload() {
+      const { file, isBatch } = this;
+      return this.$store.state.config.uploadable && !isBatch && file.isDir;
     }
   },
   methods: {
-    async batchDownload(fileList, isSeperate) {
-      const parent = this.$route.query.dir || "/";
+    open() {
+      this.$emit("open", this.file);
+    },
 
-      const downloadList = fileList.map(item => {
-        const { path, fullPath, isDir, basename } = item;
-        return { path, fullPath, isDir, basename };
-      });
+    copyName() {
+      copyTextToClipBoard(this.file.basename) && (this.showContextMenu = false);
+    },
+
+    copyHref() {
+      // 复制到剪切板
+      const url = this.$refs.link.href;
+      copyTextToClipBoard(url) && (this.showContextMenu = false);
+    },
+
+    async batchDownload(downloadList, isSeperate) {
       if (isSeperate) {
         // 逐个下载
-        while (downloadList.length) {
-          const file = downloadList.shift();
-          if (file.isDir) {
-            await request("/api/download", { downloadList: [file] }, "post");
-            window.open("/api/download?isDownload");
-          } else {
-            const fullPath = path.join(parent, file.basename);
-            window.open(fullPath);
-          }
-        }
+        downloadList.forEach(file => doDownload([file]));
       } else {
-        // 通知服务器下载数量
-        await request("/api/download", { downloadList }, "post");
-        window.open("/api/download?isDownload");
+        // 全部下载
+        doDownload(downloadList);
       }
     },
-    async download(isSeperate) {
-      const parent = this.$route.query.dir || "/";
+    download(isSeperate) {
       const { batchDownload, filesSelected, file } = this;
-      if (this.isBatch) {
-        // 批量下载
-        batchDownload(filesSelected, isSeperate);
-      } else {
-        // 单独下载
-        const filePath = path.join(parent, file.basename);
-        file.isDir ? batchDownload([file]) : window.open(filePath);
-      }
+      const downloadList = this.isBatch ? filesSelected : [file];
+      batchDownload(downloadList, isSeperate);
+      this.showContextMenu = false;
     },
     goToUpload() {
       const { file } = this;
@@ -97,7 +97,23 @@ export default {
       if (visible && !file.selected) {
         this.$emit("updateSelected", [file]);
       }
+    },
+    getHref() {
+      const { file } = this;
+      if (file.isDir) {
+        const { query, ...rest } = this.$route;
+        const { dir = "/" } = query;
+        const { href } = this.$router.resolve({
+          ...rest,
+          query: { ...query, dir: path.join(dir, file.basename) }
+        });
+        return href;
+      } else {
+        return file.fullPath;
+      }
     }
   }
 };
 </script>
+
+

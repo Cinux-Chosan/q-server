@@ -2,11 +2,7 @@
   <div id="app">
     <div id="nav" class="clearfix">
       <div class="navBreadcrumb">
-        <Breadcrumb>
-          <BreadcrumbItem v-for="(item) in breadcrumbs" :key="item.path">
-            <router-link :to="{ query: { ...$route.query, dir: item.path  } }">{{item.name}}</router-link>
-          </BreadcrumbItem>
-        </Breadcrumb>
+        <Breadcrumb />
       </div>
       <div class="navActions">
         <template v-if="uploadable">
@@ -27,17 +23,15 @@
 <script>
 import request from "@req";
 import Search from "@comp/Search";
-import { Divider, BackTop, Breadcrumb } from "ant-design-vue";
-import path from "path";
+import Breadcrumb from "@comp/Breadcrumb";
+import { BackTop, Divider } from "ant-design-vue";
 
-const { Item: BreadcrumbItem } = Breadcrumb;
 export default {
   components: {
     Search,
     Divider,
     BackTop,
-    Breadcrumb,
-    BreadcrumbItem
+    Breadcrumb
   },
   created() {
     this.getConfig();
@@ -48,23 +42,6 @@ export default {
   computed: {
     uploadable() {
       return this.$store.state.config.uploadable;
-    },
-    breadcrumbs() {
-      const paths = this.$route.query.dir || "/";
-      let parent = "/";
-      const rootObj = {
-        name: "~",
-        path: "/"
-      };
-      const breadcrumbs = paths.split("/").filter(item => item);
-      const breadcrumbObjs = breadcrumbs.map(item => {
-        parent = path.join(parent, item);
-        return {
-          name: item,
-          path: parent
-        };
-      });
-      return [rootObj, ...breadcrumbObjs];
     }
   },
   methods: {

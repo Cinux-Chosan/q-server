@@ -1,15 +1,15 @@
 <template>
   <div class="home">
     <ul class="fileList clearfix">
-      <li @dblclick="onDirChange('..', true)" class="fileItem" v-if="showParentDir">
+      <li @dblclick="onDirChange({ path: '..', isDir: true})" class="fileItem" v-if="showParentDir">
         <SvgIcon icon-class="dir" class="iconItem" />
         <p class="fileName ellipsis">..</p>
       </li>
       <li
         v-for="(file, index) in filesFiltered"
         :key="file.fullPath"
-        @click="setSelect(file, index, $event)"
-        @dblclick="onDirChange(file.path, file.isDir)"
+        @click.stop="setSelect(file, index, $event)"
+        @dblclick="onDirChange(file)"
         :class="['fileItem', file.selected ? 'selected' : '']"
       >
         <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
@@ -21,12 +21,14 @@
               <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
             </div>
           </template>
-          <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-          <ContextMenu :file="file" :filesSelected="filesSelected" @updateSelected="updateSelected">
-            <a class="block" :href="gerHref(file)" @click.prevent>
-              <SvgIcon :icon-class="file | fileType" class="iconItem" />
-              <p class="fileName ellipsis">{{file.basename}}</p>
-            </a>
+          <ContextMenu
+            :file="file"
+            :filesSelected="filesSelected"
+            @updateSelected="updateSelected"
+            @open="onDirChange"
+          >
+            <SvgIcon :icon-class="file | fileType" class="iconItem" />
+            <p class="fileName ellipsis">{{file.basename}}</p>
           </ContextMenu>
         </Popover>
       </li>
@@ -64,6 +66,16 @@ export default {
     Empty,
     SvgIcon,
     ContextMenu
+  },
+  mounted() {
+    const { body } = document;
+    const unset = () => {
+      this.setMany(this.filesFiltered, false);
+    };
+    body.addEventListener("click", unset);
+    this.$once("hook:beforeDestroy", () =>
+      body.removeEventListener("click", unset)
+    );
   },
   watch: {
     "$route.query.dir": {
@@ -118,7 +130,8 @@ export default {
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
      */
-    onDirChange(filePath, isDir) {
+    onDirChange(file) {
+      const { path: filePath, isDir } = file;
       const parent = this.$route.query.dir || "/";
       const dir = path.join(parent, filePath);
       if (parent !== dir) {
@@ -130,19 +143,6 @@ export default {
           window.open(dir);
         }
         this.reset();
-      }
-    },
-    gerHref(file) {
-      if (file.isDir) {
-        const { query, ...rest } = this.$route;
-        const { dir = "/" } = query;
-        const { href } = this.$router.resolve({
-          ...rest,
-          query: { ...query, dir: path.join(dir, file.basename) }
-        });
-        return href;
-      } else {
-        return file.fullPath;
       }
     },
 
@@ -222,35 +222,34 @@ export default {
 </script>
 
 <style lang="less">
-.fileList {
-  padding: 0;
-}
-.fileItem {
-  @size: 100px;
-  @hoverSize: 120px;
-  width: @size;
-  height: @size;
-  float: left;
-  overflow: hidden;
-  cursor: pointer;
-  margin: 5px;
-  padding-top: 10px;
-  position: relative;
-  border-radius: 5px;
-  &.selected,
-  &:hover {
-    background: rgba(13, 10, 49, 0.1);
-    .iconItem {
-      // font-size: 80px;
+.home {
+  .fileList {
+    padding: 0;
+  }
+  .fileItem {
+    @size: 100px;
+    @hoverSize: 120px;
+    width: @size;
+    height: @size;
+    margin: 5px;
+    padding-top: 10px;
+    float: left;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    border-radius: 5px;
+    &.selected,
+    &:hover {
+      background: rgba(13, 10, 49, 0.1);
     }
-  }
 
-  .iconItem {
-    transition: all ease 0.1s;
-    font-size: 60px;
-  }
-  .fileName {
-    user-select: none;
+    .iconItem {
+      transition: all ease 0.1s;
+      font-size: 60px;
+    }
+    p.fileName {
+      user-select: none !important;
+    }
   }
 }
 .popoverContent {
