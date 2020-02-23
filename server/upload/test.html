@@ -1,53 +1,197 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh" lang="zh">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        #begin {
-            width: 5px;
-            height: 5px;
-            background-color: red;
-            position: fixed;
+
+    <title>鼠标拖动画矩形</title>
+
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+
+    <style type="text/css">
+        body,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        hr,
+        p,
+        blockquote,
+        dl,
+        dt,
+        dd,
+        ul,
+        ol,
+        li,
+        pre,
+        form,
+        fieldset,
+        legend,
+        button,
+        input,
+        textarea,
+        th,
+        td {
+            margin: 0;
+            padding: 0
         }
 
-        #end {
-            width: 5px;
-            height: 5px;
-            position: fixed;
-            left: 100px;
-            top: 100px;
-            background-color: black;
+        html {
+            color: #000;
+            overflow-y: scoll;
+            overflow: -moz-scrollbars-vertical
         }
 
-        #content {
-            width: 40px;
-            height: 30px;
-            background-color: blue;
+        .p {
+            position: absolute;
+            border: 1px dashed blue;
+            width: 0px;
+            height: 0px;
+            left: 0px;
+            top: 0px;
+            overflow: hidden;
+        }
+
+        .retc {
+            position: absolute;
+            border: 1px solid #CCCCCC;
+            overflow: hidden;
+            background: #EFEFEF
         }
     </style>
+
 </head>
 
 <body>
-    <div>
-        <div id="begin"></div>
-    </div>
-
-    
-    <div id="end"></div>
-    <div id="content"></div>
-
-    <script>
-        const begin = document.getElementById('begin')
-        const end = document.getElementById('end')
-        const range = document.createRange()
-        range.setStartBefore(begin)
-        range.setEndAfter(end)
-        debugger
-
-    </script>
+as扥as扥森as扥
 </body>
+
+<script language="javascript">
+
+    var wId = "w";
+
+    var index = 0;
+
+    var startX = 0, startY = 0;
+
+    var flag = false;
+
+    var retcLeft = "0px", retcTop = "0px", retcHeight = "0px", retcWidth = "0px";
+
+    document.onmousedown = function (e) {
+
+        flag = true;
+
+        try {
+
+            var evt = window.event || e;
+
+            var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+
+            var scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft;
+
+            startX = evt.clientX + scrollLeft;
+
+            startY = evt.clientY + scrollTop;
+
+            index++;
+
+            var p = document.createElement("p");
+
+            p.id = wId + index;
+
+            p.className = "p";
+
+            p.style.marginLeft = startX + "px";
+
+            p.style.marginTop = startY + "px";
+
+            document.body.appendChild(p);
+
+        } catch (e) {
+
+            //alert(e);
+
+        }
+
+    }
+
+    document.onmouseup = function () {
+
+        try {
+
+            document.body.removeChild($(wId + index));
+
+            var p = document.createElement("p");
+
+            p.className = "retc";
+
+            p.style.marginLeft = retcLeft;
+
+            p.style.marginTop = retcTop;
+
+            p.style.width = retcWidth;
+
+            p.style.height = retcHeight;
+
+            document.body.appendChild(p);
+
+        } catch (e) {
+
+            //alert(e);
+
+        }
+
+        flag = false;
+
+    }
+
+    document.onmousemove = function (e) {
+
+        if (flag) {
+
+            try {
+
+                var evt = window.event || e;
+
+                var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+
+                var scrollLeft = document.body.scrollLeft || document.documentElement.scrollLeft;
+
+                retcLeft = (startX - evt.clientX - scrollLeft > 0 ? evt.clientX + scrollLeft : startX) + "px";
+
+                retcTop = (startY - evt.clientY - scrollTop > 0 ? evt.clientY + scrollTop : startY) + "px";
+
+                retcHeight = Math.abs(startY - evt.clientY - scrollTop) + "px";
+
+                retcWidth = Math.abs(startX - evt.clientX - scrollLeft) + "px";
+
+                $(wId + index).style.marginLeft = retcLeft;
+
+                $(wId + index).style.marginTop = retcTop;
+
+                $(wId + index).style.width = retcWidth;
+
+                $(wId + index).style.height = retcHeight;
+
+            } catch (e) {
+
+                //alert(e);
+
+            }
+
+        }
+
+    }
+
+    var $ = function (id) {
+
+        return document.getElementById(id);
+
+    }
+
+</script>
 
 </html>

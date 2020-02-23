@@ -11,6 +11,7 @@ const { address } = require("ip");
 const cheerio = require("cheerio");
 const router = require("./router");
 const args = require("./libs/args");
+const { isDev } = require("./libs/util");
 const { error, log, http } = require("./libs/debug");
 
 const app = new Koa();
@@ -18,7 +19,7 @@ const app = new Koa();
 // 缓存 index.html 内容
 let indexFileContent = "";
 
-app.keys = ['some secret hurr'];
+app.keys = ["some secret hurr"];
 
 app
   .use(session(app))
@@ -56,8 +57,9 @@ app
   .use(koaStatic(path.join(__dirname, "www"), { index: false }))
   .use(ctx => {
     // 其他路由全返回页面
-    return (ctx.body =
-      indexFileContent || (indexFileContent = getIndexFileCache()));
+    return (ctx.body = isDev
+      ? indexFileContent || (indexFileContent = getIndexFileCache())
+      : getIndexFileCache());
   })
   .on("error", err => {
     error(err.message);
