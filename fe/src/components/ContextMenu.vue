@@ -1,7 +1,7 @@
 <template>
   <Dropdown :trigger="['contextmenu']" @visibleChange="visibleChange" v-model="showContextMenu">
     <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-    <a class="block" ref="link" :href="getHref()" @click.prevent>
+    <a class="block" ref="link" :href="getHref()" @click.prevent  draggable="false">
       <slot />
     </a>
     <Menu slot="overlay">
