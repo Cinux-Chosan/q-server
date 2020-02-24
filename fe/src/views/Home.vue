@@ -1,13 +1,20 @@
 <template>
   <div class="home">
     <ul class="fileList clearfix">
-      <li @dblclick="onDirChange({ path: '..', isDir: true})" class="fileItem" v-if="showParentDir">
+      <li
+        @mousedown.stop
+        @dblclick="onDirChange({ path: '..', isDir: true})"
+        class="fileItem parentFIle"
+        v-if="showParentDir"
+      >
         <SvgIcon icon-class="dir" class="iconItem" />
         <p class="fileName ellipsis">..</p>
       </li>
       <li
         v-for="(file, index) in filesFiltered"
+        ref="filesFiltered"
         :key="file.fullPath"
+        @mousedown.stop
         @click.stop="setSelect(file, index, $event)"
         @dblclick="onDirChange(file)"
         :class="['fileItem', file.selected ? 'selected' : '']"
@@ -34,6 +41,7 @@
       </li>
     </ul>
     <Empty description="空空如也~" v-if="isEmpty" />
+    <RangeSelector/>
   </div>
 </template>
 
@@ -44,6 +52,7 @@ import bytes from "bytes";
 import request from "@req";
 import SvgIcon from "@comp/SvgIcon";
 import ContextMenu from "@comp/ContextMenu";
+import RangeSelector from "@comp/RangeSelector";
 import iconMap from "@icons/map";
 import { Popover, Empty } from "ant-design-vue";
 import { isNull } from "@utils";
@@ -65,7 +74,8 @@ export default {
     Popover,
     Empty,
     SvgIcon,
-    ContextMenu
+    ContextMenu,
+    RangeSelector
   },
   mounted() {
     const { body } = document;
