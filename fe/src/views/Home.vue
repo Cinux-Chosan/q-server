@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <ul class="fileList clearfix">
+    <ul class="fileList clearfix allowRangeSelector">
       <li
         @mousedown.stop
         @dblclick="onDirChange({ path: '..', isDir: true})"
@@ -36,7 +36,6 @@
       </li>
     </ul>
     <Empty description="空空如也~" v-if="isEmpty" />
-    <RangeSelector />
   </div>
 </template>
 
@@ -46,7 +45,6 @@ import moment from "moment";
 import bytes from "bytes";
 import SvgIcon from "@comp/SvgIcon";
 import ContextMenu from "@comp/ContextMenu";
-import RangeSelector from "@comp/RangeSelector";
 import iconMap from "@icons/map";
 import { Popover, Empty } from "ant-design-vue";
 import { isNull } from "@utils";
@@ -69,14 +67,11 @@ export default {
     Popover,
     Empty,
     SvgIcon,
-    ContextMenu,
-    RangeSelector
+    ContextMenu
   },
   mounted() {
     const { body } = document;
-    const unset = () => {
-      this.setSelectFiles([true]);
-    };
+    const unset = () => this.setSelectFiles([true]);
     body.addEventListener("click", unset);
     this.$once("hook:beforeDestroy", () =>
       body.removeEventListener("click", unset)
@@ -197,6 +192,15 @@ export default {
 .home {
   .fileList {
     padding: 0;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 5px;
+    // background-color: transparent;
+    // &:hover{
+    //   background-color: rgba(230, 230, 230, 0.6);
+    //   transition: all ease .6s;
+    // }
+    // min-height: calc(100vh - 120px);
   }
   .fileItem {
     @size: 100px;

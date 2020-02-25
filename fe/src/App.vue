@@ -1,22 +1,24 @@
 <template>
   <div id="app">
-    <div id="nav" class="clearfix">
-      <div class="navBreadcrumb">
-        <Breadcrumb />
+    <RangeSelector>
+      <div id="nav" class="clearfix">
+        <div class="navBreadcrumb">
+          <Breadcrumb />
+        </div>
+        <div class="navActions">
+          <template v-if="uploadable">
+            <router-link :to="{ path: '/', query: { ...$route.query }}">下载</router-link>
+            <Divider type="vertical" />
+            <router-link :to="{ path: '/upload', query: { ...$route.query } }">上传</router-link>
+          </template>
+        </div>
+        <Search v-show="$route.path === '/'" class="navSearch" />
       </div>
-      <div class="navActions">
-        <template v-if="uploadable">
-          <router-link :to="{ path: '/', query: { ...$route.query }}">下载</router-link>
-          <Divider type="vertical" />
-          <router-link :to="{ path: '/upload', query: { ...$route.query } }">上传</router-link>
-        </template>
-      </div>
-      <Search v-show="$route.path === '/'" class="navSearch" />
-    </div>
-    <keep-alive>
-      <router-view />
-    </keep-alive>
-    <BackTop />
+      <keep-alive>
+        <router-view />
+      </keep-alive>
+      <BackTop />
+    </RangeSelector>
   </div>
 </template>
 
@@ -24,6 +26,7 @@
 import request from "@req";
 import Search from "@comp/Search";
 import Breadcrumb from "@comp/Breadcrumb";
+import RangeSelector from "@comp/RangeSelector";
 import { BackTop, Divider } from "ant-design-vue";
 
 export default {
@@ -31,7 +34,8 @@ export default {
     Search,
     Divider,
     BackTop,
-    Breadcrumb
+    Breadcrumb,
+    RangeSelector
   },
   created() {
     this.getConfig();
@@ -66,6 +70,7 @@ export default {
   padding: 30px;
   line-height: 32px;
   font-size: 16px;
+  height: 100px;
 
   .navBreadcrumb {
     width: 40%;
