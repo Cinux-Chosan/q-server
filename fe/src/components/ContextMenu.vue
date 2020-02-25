@@ -1,7 +1,7 @@
 <template>
   <Dropdown :trigger="['contextmenu']" @visibleChange="visibleChange" v-model="showContextMenu">
     <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-    <a class="block" ref="link" :href="getHref()" @click.prevent  draggable="false">
+    <a class="block" ref="link" :href="getHref()" @click.prevent draggable="false">
       <slot />
     </a>
     <Menu slot="overlay">
@@ -20,6 +20,7 @@
 <script>
 import path from "path";
 import { download as doDownload, copyTextToClipBoard } from "@utils";
+import { mapActions, mapGetters } from "vuex";
 import { Dropdown, Menu } from "ant-design-vue";
 const { Item: MenuItem, Divider } = Menu;
 
@@ -34,10 +35,6 @@ export default {
     file: {
       type: Object,
       required: true
-    },
-    filesSelected: {
-      type: Array,
-      required: true
     }
   },
   data() {
@@ -46,8 +43,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["selectedFiles"]),
     isBatch() {
-      return this.filesSelected.length > 1;
+      return this.selectedFiles.length > 1;
     },
     isShowDownload() {
       const { file, isBatch } = this;
@@ -55,32 +53,31 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["setSelectFiles"]),
     open() {
       this.$emit("open", this.file);
     },
-
     copyName() {
       copyTextToClipBoard(this.file.basename) && (this.showContextMenu = false);
     },
-
     copyHref() {
       // 复制到剪切板
       const url = this.$refs.link.href;
       copyTextToClipBoard(url) && (this.showContextMenu = false);
     },
-
     async batchDownload(downloadList, isSeperate) {
+      const path = this.$route.query.dir || "/";
       if (isSeperate) {
         // 逐个下载
-        downloadList.forEach(file => doDownload([file]));
+        downloadList.forEach(file => doDownload([file], path));
       } else {
         // 全部下载
-        doDownload(downloadList);
+        doDownload(downloadList, path);
       }
     },
     download(isSeperate) {
-      const { batchDownload, filesSelected, file } = this;
-      const downloadList = this.isBatch ? filesSelected : [file];
+      const { batchDownload, selectedFiles, file } = this;
+      const downloadList = this.isBatch ? selectedFiles : [file];
       batchDownload(downloadList, isSeperate);
       this.showContextMenu = false;
     },
@@ -95,7 +92,7 @@ export default {
     visibleChange(visible) {
       const { file } = this;
       if (visible && !file.selected) {
-        this.$emit("updateSelected", [file]);
+        this.setSelectFiles([true, [file]]);
       }
     },
     getHref() {

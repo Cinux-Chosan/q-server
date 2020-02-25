@@ -41,17 +41,16 @@ export const createDownloadIframe = async url => {
       console.log("error", error);
     }
   }, -1);
-  setTimeout(() => document.body.removeChild(iframe), 2000);
+  // setTimeout(() => document.body.removeChild(iframe), 20000);
 };
 
-export const download = async downloadList => {
+export const download = async (downloadList, path) => {
   downloadList = downloadList.map(item => {
     // 对多余字段进行过滤
     const { path, fullPath, isDir, basename } = item;
     return { path, fullPath, isDir, basename };
   });
-
-  const downloadId = await request("/api/download", { downloadList });
+  const downloadId = await request("/api/download", { downloadList, path });
   return createDownloadIframe(
     `/api/download?isDownload=&downloadId=${downloadId}`
   );

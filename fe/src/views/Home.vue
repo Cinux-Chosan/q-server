@@ -11,8 +11,8 @@
         <p class="fileName ellipsis">..</p>
       </li>
       <li
-        v-for="(file, index) in filesFiltered"
-        ref="filesFiltered"
+        v-for="(file, index) in filteredFiles"
+        ref="filteredFiles"
         :key="file.fullPath"
         @mousedown.stop
         @click.stop="setSelect(file, index, $event)"
@@ -28,12 +28,7 @@
               <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
             </div>
           </template>
-          <ContextMenu
-            :file="file"
-            :filesSelected="filesSelected"
-            @updateSelected="updateSelected"
-            @open="onDirChange"
-          >
+          <ContextMenu :file="file" @open="onDirChange">
             <SvgIcon :icon-class="file | fileType" class="iconItem" />
             <p class="fileName ellipsis">{{file.basename}}</p>
           </ContextMenu>
@@ -41,7 +36,7 @@
       </li>
     </ul>
     <Empty description="空空如也~" v-if="isEmpty" />
-    <RangeSelector/>
+    <RangeSelector />
   </div>
 </template>
 
@@ -49,13 +44,13 @@
 import path from "path";
 import moment from "moment";
 import bytes from "bytes";
-import request from "@req";
 import SvgIcon from "@comp/SvgIcon";
 import ContextMenu from "@comp/ContextMenu";
 import RangeSelector from "@comp/RangeSelector";
 import iconMap from "@icons/map";
 import { Popover, Empty } from "ant-design-vue";
 import { isNull } from "@utils";
+import { mapActions, mapMutations, mapGetters } from "vuex";
 
 const originData = {
   rangeBegin: null
@@ -80,7 +75,7 @@ export default {
   mounted() {
     const { body } = document;
     const unset = () => {
-      this.setMany(this.filesFiltered, false);
+      this.setSelectFiles([true]);
     };
     body.addEventListener("click", unset);
     this.$once("hook:beforeDestroy", () =>
@@ -90,52 +85,35 @@ export default {
   watch: {
     "$route.query.dir": {
       async handler() {
-        await this.updateFileList();
-        this.$store.commit("updateSearchText", "");
+        this.fetchFiles(this.currentPath);
+        this.resetSearchText();
       }
     },
-    filesFiltered() {
-      this.showParentDir =
-        this.$route.query.dir && this.$route.query.dir !== "/";
+    filteredFiles() {
+      const { dir } = this.$route.query;
+      this.showParentDir = dir && dir !== "/";
     }
   },
   activated() {
-    this.updateFileList();
+    this.fetchFiles(this.currentPath);
   },
   computed: {
+    ...mapGetters(["filteredFiles", "selectedFiles"]),
     currentPath() {
       return decodeURIComponent(this.$route.query.dir || "/");
     },
-    filesFiltered() {
-      return this.$store.getters.filterdFileList;
-    },
-    filesSelected() {
-      return this.filesFiltered.filter(({ selected }) => selected);
-    },
     isEmpty() {
-      return !this.filesFiltered.length;
+      return !this.filteredFiles.length;
     }
   },
   methods: {
+    ...mapActions(["fetchFiles", "setSelectFiles"]),
+    ...mapMutations({
+      resetSearchText: commit => commit("updateSearchText", "")
+    }),
+
     reset(o) {
       Object.assign(this, originData, o);
-    },
-    async getFileList(path) {
-      let fileList = [];
-      try {
-        fileList = (await request("/api/files", { path })) || [];
-      } catch (err) {
-        this.$message.error(err.message);
-      }
-      return fileList;
-    },
-    async updateFileList() {
-      try {
-        const fileList = (await this.getFileList(this.currentPath)) || [];
-        this.$store.commit("updateFileList", fileList);
-      } catch (err) {
-        this.$message.error(err.message);
-      }
     },
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
@@ -156,18 +134,6 @@ export default {
       }
     },
 
-    // 同时设置多个元素的选中状态
-    setMany(list = [], selected, ...excludes) {
-      const includes = list.filter(file => !excludes.includes(file));
-      includes.forEach(
-        file =>
-          !!file.selected !== selected && this.$set(file, "selected", selected)
-      );
-      excludes.forEach(
-        file =>
-          !!file.selected === selected && this.$set(file, "selected", !selected)
-      );
-    },
     // 设置选中，取消选中状态
     setSelect(file, index, evt) {
       /**
@@ -176,13 +142,13 @@ export default {
        * * 如果没按住 shift，则重置起始点
        * * 如果按住 shift，则不重置起始点
        */
-      let { filesFiltered, rangeBegin, filesSelected } = this;
+      let { filteredFiles, rangeBegin, selectedFiles } = this;
       if (isNull(rangeBegin) || !evt.shiftKey) {
         this.rangeBegin = rangeBegin = index;
       }
 
       // 本轮需要被选中的值
-      let currentSelected = [...filesSelected];
+      let currentSelected = [...selectedFiles];
 
       if (evt.metaKey || evt.ctrlKey) {
         // 设置多选状态
@@ -196,7 +162,7 @@ export default {
         const beginIndex = Math.min(rangeBegin, index);
         const endIndex = Math.max(rangeBegin, index);
         currentSelected = [];
-        filesFiltered.forEach((file, idx) => {
+        filteredFiles.forEach((file, idx) => {
           if (idx >= beginIndex && idx <= endIndex) {
             currentSelected.push(file);
           }
@@ -210,12 +176,8 @@ export default {
           currentSelected = file.selected ? [] : [file];
         }
       }
-
       // 统一设置选中状态
-      this.setMany(filesFiltered, false, ...currentSelected);
-    },
-    updateSelected(selectedList) {
-      this.setMany(this.filesFiltered, false, ...selectedList);
+      this.setSelectFiles([true, currentSelected]);
     }
   },
   filters: {

@@ -3,15 +3,11 @@
 </template>
 
 <script>
-import { debounce } from "@utils/decorator";
+import { throttle } from "@utils/decorator";
+import { mapActions } from "vuex";
 const bodyEventer = ["MouseDown", "MouseUp", "MouseMove"];
 
 export default {
-  props: {
-    list: {
-      type: Array
-    }
-  },
   data() {
     return {
       begin: { x: 0, y: 0 },
@@ -62,26 +58,36 @@ export default {
     });
   },
   methods: {
+    ...mapActions(["setSelectFiles"]),
+    @throttle(100)
     matching() {
-      // const items = document.querySelectorAll(".fileItem:not(.parentFIle)");
       if (!this.isShowRect) return;
       this.$nextTick(() => {
         const style = this.styleRectPosition;
-        const items = [
-          ...document.querySelectorAll(".fileItem:not(.parentFIle)")
-        ];
-        items.forEach(item => {
-          // if (!index) {
+        const items = this.$parent.$refs.filteredFiles;
+        const selectedIndexs = [];
+        items.forEach((item, index) => {
           const rect = item.getBoundingClientRect();
-          console.log(rect, style);
+          // 判断四个角是否在框内
+          // 左上角在框内
           if (rect.left > style.left && rect.left < style.left + style.width) {
             if (rect.top > style.top && rect.top < style.top + style.height) {
-              console.log(true);
-              item.className = item.className + " selected";
+              selectedIndexs.push(index);
             }
           }
+          // // yb上角在框内
+          // if (rect.left > style.left && rect.left < style.left + style.width) {
+          //   if (rect.top > style.top && rect.top < style.top + style.height) {
+          //     selectedIndexs.push(index);
+          //   }
           // }
         });
+        if (!selectedIndexs.length) { 
+          // 
+         } else {
+
+          this.setSelectFiles([true, [...new Set(selectedIndexs)], true]);
+        }
       });
     },
     onMouseDown(evt) {
@@ -92,7 +98,6 @@ export default {
     onMouseUp() {
       this.isShowRect = false;
     },
-    @debounce(8)
     onMouseMove(evt) {
       const { end } = this;
       ({ clientX: end.x, clientY: end.y } = evt);
