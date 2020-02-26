@@ -13,7 +13,7 @@ export default new Vuex.Store({
   },
   mutations: {
     updateFileList(state, files) {
-      state.files = files;
+      window.f = state.files = files;
     },
     updateSearchText(state, searchText) {
       state.searchText = searchText;

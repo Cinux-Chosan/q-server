@@ -4,7 +4,8 @@
       <li
         @mousedown.stop
         @dblclick="onDirChange({ path: '..', isDir: true})"
-        class="fileItem parentFIle"
+        class="fileItem parentDir"
+        key=".."
         v-if="showParentDir"
       >
         <SvgIcon icon-class="dir" class="iconItem" />
@@ -195,12 +196,6 @@ export default {
     margin: 10px;
     padding: 20px;
     border-radius: 5px;
-    // background-color: transparent;
-    // &:hover{
-    //   background-color: rgba(230, 230, 230, 0.6);
-    //   transition: all ease .6s;
-    // }
-    // min-height: calc(100vh - 120px);
   }
   .fileItem {
     @size: 100px;
