@@ -2,7 +2,6 @@
   <div class="home">
     <ul class="fileList clearfix allowRangeSelector">
       <li
-        @mousedown.stop
         @dblclick="onDirChange({ path: '..', isDir: true})"
         class="fileItem parentDir"
         key=".."
@@ -15,7 +14,6 @@
         v-for="(file, index) in filteredFiles"
         ref="filteredFiles"
         :key="file.fullPath"
-        @mousedown.stop
         @click.stop="setSelect(file, index, $event)"
         @dblclick="onDirChange(file)"
         :class="['fileItem', file.selected ? 'selected' : '']"
@@ -71,12 +69,15 @@ export default {
     ContextMenu
   },
   mounted() {
-    const { body } = document;
-    const unset = () => this.setSelectFiles([true]);
-    body.addEventListener("click", unset);
-    this.$once("hook:beforeDestroy", () =>
-      body.removeEventListener("click", unset)
-    );
+    // const { body } = document;
+    // const unset = () => {
+    //   debugger;
+    //   this.setSelectFiles([true]);
+    // };
+    // body.addEventListener("mousedown", unset);
+    // this.$once("hook:beforeDestroy", () =>
+    //   body.removeEventListener("mousedown", unset)
+    // );
   },
   watch: {
     "$route.query.dir": {

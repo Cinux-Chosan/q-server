@@ -8,7 +8,7 @@
       <MenuItem key="open" v-if="!isBatch" @click="open">打开</MenuItem>
       <MenuItem key="batchDownload" @click="download()">{{isBatch ? '合并下载' : '下载'}}</MenuItem>
       <MenuItem key="seperateDownload" @click="download(true)" v-if="isBatch">逐个下载</MenuItem>
-      <MenuItem key="toUpload" @click="goToUpload" v-if="isShowDownload">上传</MenuItem>
+      <MenuItem key="toUpload" @click="goToUpload" v-if="isShowUpload">上传</MenuItem>
       <Divider v-show="false" />
       <MenuItem key="copyName" v-if="!isBatch" @click="copyName">拷贝名称</MenuItem>
       <MenuItem key="copyUrl" v-if="!isBatch" @click="copyHref">拷贝地址</MenuItem>
@@ -47,7 +47,7 @@ export default {
     isBatch() {
       return this.selectedFiles.length > 1;
     },
-    isShowDownload() {
+    isShowUpload() {
       const { file, isBatch } = this;
       return this.$store.state.config.uploadable && !isBatch && file.isDir;
     }
