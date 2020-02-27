@@ -71,12 +71,12 @@ export default {
     ContextMenu
   },
   mounted() {
-    const { body } = document;
-    const unset = () => this.setSelectFiles([true]);
-    body.addEventListener("click", unset);
-    this.$once("hook:beforeDestroy", () =>
-      body.removeEventListener("click", unset)
-    );
+    // const { body } = document;
+    // const unset = () => this.setSelectFiles([true]);
+    // body.addEventListener("mousedown", unset);
+    // this.$once("hook:beforeDestroy", () =>
+    //   body.removeEventListener("mousedown", unset)
+    // );
   },
   watch: {
     "$route.query.dir": {

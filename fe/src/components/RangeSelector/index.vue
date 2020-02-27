@@ -40,6 +40,8 @@ export default {
     }
   },
   watch: {
+    // 在数据初始化后获取每个文件 DOM 元素相对于页面的绝对位置信息
+    // 从而不需要每次调用 getBoundingClientRect 降低性能
     filteredFiles() {
       this.$nextTick(() => {
         const fileDomList = [
@@ -48,7 +50,7 @@ export default {
         this.fileRects = fileDomList.map(fileDom => {
           const { left, top, width, height } = fileDom.getBoundingClientRect();
           const rect = new Rect({ left, top, width, height });
-          rect.move({ left: window.pageXOffset, top: window.pageYOffset });
+          rect.move(window.pageXOffset, window.pageYOffset);
           return rect;
         });
       });
@@ -56,25 +58,30 @@ export default {
   },
   methods: {
     ...mapActions(["setSelectFiles"]),
-    @throttle(2000) 
-    setSelectFilesThrottled(){
+    @throttle(100)
+    setSelectFilesThrottled() {
       this.setSelectFiles(...arguments);
     },
     @throttle(100)
     matching() {
       const { rect: rangeRect } = this;
-      const adjustedRangeRect = new Rect(rangeRect).move({
-        left: window.pageXOffset,
-        top: window.pageYOffset
-      });
-      const selectedIndex = []
+      const adjustedRangeRect = new Rect(rangeRect).move(
+        window.pageXOffset,
+        window.pageYOffset
+      );
+      const selectedIndex = [];
       this.fileRects.forEach((rect, index) => {
-        adjustedRangeRect.hasIntersectionWith(rect) && selectedIndex.push(index)
+        adjustedRangeRect.hasIntersectionWith(rect) &&
+          selectedIndex.push(index);
       });
       this.setSelectFilesThrottled([true, selectedIndex, true]);
     },
     onMouseDown(evt) {
-      this.start = new Point(evt.clientX, evt.clientY);
+      // 重置选中状态
+      this.setSelectFiles([true]);
+      // 设置选中起点
+
+      this.start = new Point(evt.pageX, evt.pageY);
     },
     onMouseUp() {
       this.start = null;
@@ -83,7 +90,7 @@ export default {
     onMouseMove(evt) {
       const { start, end } = this;
       if (start) {
-        end.setPosition(evt.clientX, evt.clientY);
+        end.setPosition(evt.pageX, evt.pageY);
         if (start.diffMin(end) > 2) {
           // 超过 2 像素 diff 才显示，防止元素影响如 router-link 之类组件的 click 事件
           this.isShowRect = true;
@@ -98,9 +105,10 @@ export default {
 <style lang="less">
 .rangeSelectorContainer {
   height: 100%;
+  position: relative;
 }
 .rangeSelectorBox {
-  position: fixed;
+  position: absolute;
   border: 1px dashed rgba(0, 0, 0, 0.4);
   background: transparent;
   height: auto;
