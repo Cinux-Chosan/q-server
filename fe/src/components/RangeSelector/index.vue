@@ -4,6 +4,9 @@
     @mousedown.left="onMouseDown"
     @mouseup.left="onMouseUp"
     @mousemove="onMouseMove"
+    @touchstart="onMouseDown"
+    @touchmove="onMouseMove"
+    @touchend="onMouseUp"
   >
     <slot />
     <div class="rangeSelectorBox" :style="rect.css" v-if="isShowRect"></div>
