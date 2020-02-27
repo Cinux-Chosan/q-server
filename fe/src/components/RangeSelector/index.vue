@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     ...mapActions(["setSelectFiles"]),
-    @throttle(2000) 
+    @throttle(100) 
     setSelectFilesThrottled(){
       this.setSelectFiles(...arguments);
     },
