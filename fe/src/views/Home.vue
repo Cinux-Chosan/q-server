@@ -1,40 +1,42 @@
 <template>
   <div class="home">
-    <ul class="fileList clearfix allowRangeSelector">
-      <li
-        @dblclick="onDirChange({ path: '..', isDir: true})"
-        class="fileItem parentDir"
-        key=".."
-        v-if="showParentDir"
-      >
-        <SvgIcon icon-class="dir" class="iconItem" />
-        <p class="fileName ellipsis">..</p>
-      </li>
-      <li
-        v-for="(file, index) in filteredFiles"
-        ref="filteredFiles"
-        :key="file.fullPath"
-        @click.stop="setSelect(file, index, $event)"
-        @dblclick="onDirChange(file)"
-        :class="['fileItem', file.selected ? 'selected' : '']"
-      >
-        <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
-          <template #content>
-            <div class="popoverContent">
-              <p>文件名：{{file.basename}}</p>
-              <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
-              <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
-              <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
-            </div>
-          </template>
-          <ContextMenu :file="file" @open="onDirChange">
-            <SvgIcon :icon-class="file | fileType" class="iconItem" />
-            <p class="fileName ellipsis">{{file.basename}}</p>
-          </ContextMenu>
-        </Popover>
-      </li>
-    </ul>
-    <Empty description="空空如也~" v-if="isEmpty" />
+    <Spin :spinning="spinning" :delay="300">
+      <ul class="fileList clearfix allowRangeSelector" :key="$route.query.dir">
+        <li
+          @dblclick="onDirChange({ path: '..', isDir: true})"
+          class="fileItem parentDir"
+          key=".."
+          v-if="showParentDir"
+        >
+          <SvgIcon icon-class="dir" class="iconItem" />
+          <p class="fileName ellipsis">..</p>
+        </li>
+        <li
+          v-for="(file, index) in filteredFiles"
+          ref="filteredFiles"
+          :key="file.fullPath"
+          @click.stop="setSelect(file, index, $event)"
+          @dblclick="onDirChange(file)"
+          :class="['fileItem', file.selected ? 'selected' : '']"
+        >
+          <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
+            <template #content>
+              <div class="popoverContent">
+                <p>文件名：{{file.basename}}</p>
+                <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
+                <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
+                <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
+              </div>
+            </template>
+            <ContextMenu :file="file" @open="onDirChange">
+              <SvgIcon :icon-class="file | fileType" class="iconItem" />
+              <p class="fileName ellipsis">{{file.basename}}</p>
+            </ContextMenu>
+          </Popover>
+        </li>
+      </ul>
+      <Empty description="空空如也~" v-if="isEmpty" />
+    </Spin>
   </div>
 </template>
 
@@ -45,7 +47,7 @@ import bytes from "bytes";
 import SvgIcon from "@comp/SvgIcon";
 import ContextMenu from "@comp/ContextMenu";
 import iconMap from "@icons/map";
-import { Popover, Empty } from "ant-design-vue";
+import { Popover, Empty, Spin } from "ant-design-vue";
 import { isNull } from "@utils";
 import { mapActions, mapMutations, mapGetters } from "vuex";
 
@@ -59,40 +61,26 @@ export default {
     return {
       path: location.pathname,
       showParentDir: false,
+      spinning: false,
       ...originData
     };
   },
   components: {
     Popover,
     Empty,
+    Spin,
     SvgIcon,
     ContextMenu
   },
-  mounted() {
-    // const { body } = document;
-    // const unset = () => {
-    //   debugger;
-    //   this.setSelectFiles([true]);
-    // };
-    // body.addEventListener("mousedown", unset);
-    // this.$once("hook:beforeDestroy", () =>
-    //   body.removeEventListener("mousedown", unset)
-    // );
-  },
   watch: {
-    "$route.query.dir": {
-      async handler() {
-        this.fetchFiles(this.currentPath);
-        this.resetSearchText();
-      }
-    },
+    "$route.query.dir": ["setCancelStatus", "loadFiles", "resetSearchText"],
     filteredFiles() {
       const { dir } = this.$route.query;
       this.showParentDir = dir && dir !== "/";
     }
   },
   activated() {
-    this.fetchFiles(this.currentPath);
+    this.loadFiles();
   },
   computed: {
     ...mapGetters(["filteredFiles", "selectedFiles"]),
@@ -100,15 +88,26 @@ export default {
       return decodeURIComponent(this.$route.query.dir || "/");
     },
     isEmpty() {
-      return !this.filteredFiles.length;
+      return !this.spinning && !this.filteredFiles.length;
     }
   },
   methods: {
     ...mapActions(["fetchFiles", "setSelectFiles"]),
     ...mapMutations({
-      resetSearchText: commit => commit("updateSearchText", "")
+      resetSearchText: commit => commit("updateSearchText", ""),
+      setCancelStatus: commit => commit("updateCancelStatus", false)
     }),
-
+    async loadFiles() {
+      try {
+        this.spinning = true;
+        await this.fetchFiles(this.currentPath);
+      } catch (error) {
+        //
+      } finally {
+        console.log('loadFiles')
+        this.spinning = false;
+      }
+    },
     reset(o) {
       Object.assign(this, originData, o);
     },

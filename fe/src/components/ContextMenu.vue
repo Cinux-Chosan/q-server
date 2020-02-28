@@ -20,7 +20,7 @@
 <script>
 import path from "path";
 import { download as doDownload, copyTextToClipBoard } from "@utils";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import { Dropdown, Menu } from "ant-design-vue";
 const { Item: MenuItem, Divider } = Menu;
 
@@ -43,13 +43,14 @@ export default {
     };
   },
   computed: {
+    ...mapState(['config']),
     ...mapGetters(["selectedFiles"]),
     isBatch() {
       return this.selectedFiles.length > 1;
     },
     isShowUpload() {
-      const { file, isBatch } = this;
-      return this.$store.state.config.uploadable && !isBatch && file.isDir;
+      const { file, isBatch, config } = this;
+      return config.uploadable && file.isDir && !isBatch;
     }
   },
   methods: {

@@ -1,5 +1,6 @@
 <template>
   <div
+    tabindex="0"
     class="rangeSelectorContainer"
     @mousedown.left="onMouseDown"
     @mouseup.left="onMouseUp"
@@ -7,6 +8,7 @@
     @touchstart="onMouseDown"
     @touchmove="onMouseMove"
     @touchend="onMouseUp"
+    @keydown.prevent.65="onKeyDown"
   >
     <slot />
     <div class="rangeSelectorBox" :style="rect.css" v-if="isShowRect"></div>
@@ -17,6 +19,8 @@
 <script>
 import { throttle } from "@utils/decorator";
 import { mapActions, mapGetters } from "vuex";
+import debug from "@utils/debug";
+import { isDev } from "@utils";
 import Point from "./Point";
 import Rect from "./Rect";
 
@@ -32,9 +36,9 @@ export default {
     };
   },
   mounted() {
-    const { onScroll } = this;
-    // fix：当用户鼠标处于按下状态时，通过滚轮滚动页面不会触发 mouseMove 事件
+    // fix：当用户鼠标处于按下状态时，通过滚轮滚动页面不会触发 mousemove 事件
     // 因此需要通过 onscroll 来弥补滚动时的实时选中
+    const { onScroll } = this;
     window.addEventListener("scroll", onScroll);
     this.$once("hook:beforeDestroy", () =>
       window.removeEventListener("scroll", onScroll)
@@ -57,12 +61,21 @@ export default {
       const height = Math.abs(startY - endY);
       const width = Math.abs(startX - endX);
       return new Rect({ left, top, height, width });
+    },
+    /**
+     * 校验是否是鼠标拖动状态：当按住鼠标左键移动距离超过 2 像素才认为用户是希望进行拖动多选
+     * 从而避免 click 事件同时触发 mousedown 和 mouseup 事件，从而提升性能
+     */
+    isValidMoving() {
+      const { start, end } = this;
+      return start && start.diffMin(end) > 2;
     }
   },
   watch: {
     // 在数据初始化后获取每个文件 DOM 元素相对于页面的绝对位置信息
     // 从而不需要每次调用 getBoundingClientRect 降低性能
     filteredFiles() {
+      this.selectedIndex = [];
       this.$nextTick(() => {
         const fileDomList = [
           ...document.querySelectorAll(".fileItem:not(.parentDir)")
@@ -99,25 +112,28 @@ export default {
       });
       this.selectedIndex = selectedIndex;
     },
+    @throttle(300, false)
     onMouseDown(evt) {
       // 重置选中状态
+      this.selectedIndex = [];
       this.setSelectFiles([true]);
       // 设置选中起点
       this.start = new Point(evt.pageX, evt.pageY);
-      this.selectedIndex = [];
-      this.setSelectFiles([true]);
+      this.end = new Point(evt.pageX, evt.pageY);
+      isDev && debug.event("onMouseDown", evt);
     },
     onMouseUp() {
       this.isShowRect = false;
-      this.start = null;
-      this.setSelectFiles([true, this.selectedIndex, true]);
+      if (this.isValidMoving) {
+        this.setSelectFilesThrottled([true, this.selectedIndex, true]);
+      }
+      this.start = this.end = null;
     },
     onMouseMove(evt) {
-      const { start, end } = this;
+      const { start, end, isValidMoving } = this;
       if (start) {
         end.setPosition(evt.pageX, evt.pageY);
-        if (start.diffMin(end) > 2) {
-          // 超过 2 像素 diff 才显示，防止元素影响如 router-link 之类组件的 click 事件
+        if (isValidMoving) {
           this.isShowRect = true;
           this.currentScrollTop = document.documentElement.scrollTop;
           this.matching();
@@ -130,6 +146,11 @@ export default {
         end.move(0, document.documentElement.scrollTop - currentScrollTop);
         this.currentScrollTop = document.documentElement.scrollTop;
         this.matching();
+      }
+    },
+    onKeyDown(evt) {
+      if (evt.metaKey || evt.ctrlKey) {
+        this.setSelectFiles([false]);
       }
     }
   }
@@ -144,6 +165,7 @@ export default {
     position: fixed;
     right: 10px;
     bottom: 30px;
+    user-select: none;
   }
 }
 .rangeSelectorBox {

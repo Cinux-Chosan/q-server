@@ -1,18 +1,15 @@
 const Koa = require("koa");
 const path = require("path");
-const send = require("koa-send");
-const fs = require("fs");
 const koaBody = require("koa-body"); //解析上传文件的插件
 const session = require("koa-session");
 const koaStatic = require("koa-static");
 const compress = require("koa-compress");
 const bytes = require("bytes");
 const { address } = require("ip");
-const cheerio = require("cheerio");
 const router = require("./router");
 const args = require("./libs/args");
-const { isDev, isAccessible } = require("./libs/util");
-const { error, log, http } = require("./libs/debug");
+const { isDev, checkAccessble, getIndexFileCache, logReq } = require("./libs/util");
+const { error, log } = require("./libs/debug");
 
 const app = new Koa();
 
@@ -23,12 +20,8 @@ app.keys = ["some secret hurr"];
 
 app
   .use(session(app))
-  .use((ctx, next) => {
-    // 打印每次请求信息
-    http(`\t${ctx.path} from \t${ctx.ip}`);
-    return next();
-  })
-  .use(compress({}))
+  .use(logReq)
+  .use(compress())
   .use(
     koaBody({
       multipart: true,
@@ -42,15 +35,7 @@ app
       }
     })
   )
-  .use((ctx, next) => {
-    // 对接口进行越权检查
-    const destPath = path.join(args.dir, ctx.request.body.dir || ".");
-    if (isAccessible(args.dir, destPath)) {
-      return next();
-    } else {
-      return ctx.throw(401, "access_denied");
-    }
-  })
+  .use(checkAccessble)
   .use(router.routes())
   .use(router.allowedMethods())
   .use(koaStatic(args.dir, { index: false, hidden: !!args.hidden }))
@@ -68,14 +53,3 @@ app
     log(`please visit http://${address()}:${args.port} to download files`);
   });
 
-/**
- * 根据命令行参数修改 index.html#title
- */
-function getIndexFileCache() {
-  const content = fs.readFileSync(path.join(__dirname, "www/index.html"), {
-    encoding: "utf8"
-  });
-  const $ = cheerio.load(content);
-  $("title").text(args.title);
-  return $.html();
-}

@@ -8,7 +8,8 @@ export default new Vuex.Store({
   state: {
     config: {},
     files: [],
-    searchText: ""
+    searchText: "",
+    cancelSetSelect: false
   },
   mutations: {
     updateFileList(state, files) {
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     },
     updateConfig(state, config) {
       state.config = config;
+    },
+    updateCancelStatus(state, value) {
+      state.cancelSetSelect = value;
     }
   },
   actions: {
@@ -26,6 +30,7 @@ export default new Vuex.Store({
       let files;
       try {
         files = (await request("/api/files", { dir })) || [];
+        commit('updateCancelStatus', false);
         files.forEach(file => (file.selected = false));
       } catch (err) {
         files = [];
@@ -33,8 +38,12 @@ export default new Vuex.Store({
       commit("updateFileList", files);
     },
     // 设置 list 中元素的 selected 字段
-    setSelectFiles({ state: { files } }, [selected, list = [], byIndex]) {
-      files.forEach((file, index) => (file.selected = list.includes(byIndex ? index : file) ? selected : !selected));
+    setSelectFiles({ getters: { filteredFiles: files }, state }, [selected, list = [], byIndex]) {
+      files.forEach((file, index) => {
+        if (!state.cancelSetSelect) {
+          file.selected = list.includes(byIndex ? index : file) ? selected : !selected
+        }
+      });
     }
   },
   getters: {

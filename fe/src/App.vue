@@ -57,7 +57,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -82,6 +82,7 @@ export default {
     width: 20%;
     float: left;
     margin-bottom: 10px;
+    user-select: none;
   }
 
   .navSearch {
@@ -89,6 +90,9 @@ export default {
     text-align: right;
     float: left;
     margin-bottom: 10px;
+    /deep/ .ant-input::placeholder {
+      user-select: none;
+    }
   }
 
   @media screen and(max-width: 600px) {
