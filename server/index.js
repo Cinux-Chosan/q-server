@@ -11,7 +11,7 @@ const { address } = require("ip");
 const cheerio = require("cheerio");
 const router = require("./router");
 const args = require("./libs/args");
-const { isDev } = require("./libs/util");
+const { isDev, isAccessible } = require("./libs/util");
 const { error, log, http } = require("./libs/debug");
 
 const app = new Koa();
@@ -45,10 +45,10 @@ app
   .use((ctx, next) => {
     // 对接口进行越权检查
     const destPath = path.join(args.dir, ctx.request.body.dir || ".");
-    if (path.relative(args.dir, destPath).startsWith("..")) {
-      return ctx.throw(401, "access_denied");
-    } else {
+    if (isAccessible(args.dir, destPath)) {
       return next();
+    } else {
+      return ctx.throw(401, "access_denied");
     }
   })
   .use(router.routes())

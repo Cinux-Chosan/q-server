@@ -14,7 +14,10 @@ const isHidden = (root, filePath) => {
 
 const isDev = process.env.NODE_ENV === "dev";
 
+const isAccessible= (root, absPath) => !path.relative(root, absPath).startsWith('..')
+
 module.exports = exports = {
   isHidden,
-  isDev
+  isDev,
+  isAccessible
 };

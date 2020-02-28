@@ -1,4 +1,5 @@
 const args = require("../libs/args");
+const { isAccessible } = require('../libs/util')
 const path = require("path");
 const fs = require("fs");
 const archiver = require("archiver");
@@ -55,16 +56,17 @@ module.exports = exports = {
 function appendToArchiver({ downloadList = [], path: subPath }) {
   const cwd = path.join(args.dir, subPath);
   const archive = archiver("zip");
-  archive.on('error', function (err) {
-    throw err;
-  });
   downloadList.forEach(({ basename, isDir }) => {
     // archiver 不支持 cwd 参数
     const fullPath = path.join(cwd, basename);
-    if (isDir) {
-      archive.directory(fullPath, basename);
+    if (isAccessible(args.dir, fullPath)) {
+      if (isDir) {
+        archive.directory(fullPath, basename);
+      } else {
+        archive.file(fullPath, { name: basename });
+      }
     } else {
-      archive.file(fullPath, { name: basename });
+      throw new Error('访问越权');
     }
   });
   archive.finalize();

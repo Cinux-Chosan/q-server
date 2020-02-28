@@ -26,7 +26,7 @@ export const throttle = (interval, execLast = true) => {
       ...desc,
       value: function (...args) {
         const now = Date.now()
-        if(execLast) {
+        if (execLast) {
           clearTimeout(timer);
           timer = setTimeout(() => fn.apply(this, args), interval)
         }

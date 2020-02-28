@@ -1,7 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import request from "@req";
-import { message } from "ant-design-vue";
 
 Vue.use(Vuex);
 
@@ -23,13 +22,13 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async fetchFiles({ commit }, path) {
-      let files = [];
+    async fetchFiles({ commit }, dir) {
+      let files;
       try {
-        files = (await request("/api/files", { path })) || [];
+        files = (await request("/api/files", { dir })) || [];
         files.forEach(file => (file.selected = false));
       } catch (err) {
-        message.error(err.message);
+        files = [];
       }
       commit("updateFileList", files);
     },
