@@ -1,5 +1,6 @@
 const path = require("path");
-const webpack = require('webpack')
+const webpack = require("webpack");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const { resolve } = path;
 
 module.exports = {
@@ -18,7 +19,9 @@ module.exports = {
       alias: {
         "@utils": path.join(__dirname, "src/utils/"),
         "@req": path.join(__dirname, "src/utils/request"),
-        "@comp": path.join(__dirname, "src/components"),
+        "@comps": path.join(__dirname, "src/components"),
+        "@directives": path.join(__dirname, "src/directives"),
+        "@classes": path.join(__dirname, "src/classes"),
         "@icons": path.join(__dirname, "src/Icons")
       }
     }
@@ -27,10 +30,10 @@ module.exports = {
     config
       .entry("app")
       // IE 9 classList polyfill
-      .prepend("classlist-polyfill")
+      // .prepend("classlist-polyfill")
       .prepend("@babel/polyfill")
       .end();
-      
+
     config.module
       .rule("svg")
       .exclude.add(resolve("src/Icons"))
@@ -50,10 +53,12 @@ module.exports = {
 
     // 动态打包标志
     config
-      .plugin('DefinePlugin')
-      .use(webpack.DefinePlugin, [{
-        'process.isDev': JSON.stringify(config.get('mode') !== 'production')
-      }])
+      .plugin("DefinePlugin")
+      .use(webpack.DefinePlugin, [
+        {
+          "isDev": JSON.stringify(config.get("mode") !== "production")
+        }
+      ])
       .end();
 
     // ant-design-vue 使用了未转换成 es 5 的 ismobile 包，导致 ie <= 10  无法识别 const 等 es6 属性
@@ -61,10 +66,11 @@ module.exports = {
       .rule("fixBug")
       .test(/\.js$/)
       .include.add(resolve("node_modules/ismobilejs"))
+      .add(resolve("node_modules/debug"))
       .end()
       .use("fixBug")
       .loader("babel-loader")
       .end();
-    // const conf = config.toConfig();
+    const conf = config.toConfig();
   }
 };

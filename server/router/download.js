@@ -1,5 +1,5 @@
 const args = require("../libs/args");
-const { isAccessible } = require('../libs/util')
+const { isAccessible } = require("../libs/util");
 const path = require("path");
 const fs = require("fs");
 const archiver = require("archiver");
@@ -18,7 +18,7 @@ module.exports = exports = {
         const [firstFile = {}] = downloadList;
         const isMultiple = downloadList.length > 1;
         if (!isMultiple && !firstFile.isDir) {
-          // 只有一个文件并且是非目录，直接下载
+          // 只有一个文件并且是非目录，直接下载，不走 zip 压缩
           const fullPath = path.join(args.dir, firstFile.fullPath);
           ctx.set({
             "Content-Disposition": `attachment;filename=${firstFile.basename}`
@@ -56,17 +56,16 @@ module.exports = exports = {
 function appendToArchiver({ downloadList = [], path: subPath }) {
   const cwd = path.join(args.dir, subPath);
   const archive = archiver("zip");
-  downloadList.forEach(({ basename, isDir }) => {
-    // archiver 不支持 cwd 参数
+  downloadList.forEach(({ basename }) => {
     const fullPath = path.join(cwd, basename);
+    // 对每个路径进行越权校验
     if (isAccessible(args.dir, fullPath)) {
-      if (isDir) {
-        archive.directory(fullPath, basename);
-      } else {
-        archive.file(fullPath, { name: basename });
-      }
+      const globConf = { cwd, dot: args.hidden };
+      archive
+        .glob(basename, globConf) // 匹配文件
+        .glob(`${basename}/**/*`, globConf); // 匹配目录和内容
     } else {
-      throw new Error('访问越权');
+      throw new Error("访问越权");
     }
   });
   archive.finalize();

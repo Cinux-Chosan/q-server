@@ -1,5 +1,5 @@
 <template>
-  <div class="uploadDraggerContainer">
+  <div class="uploadDraggerContainer unselectable">
     <p>
       当前会上传到
       <Breadcrumb class="breadcrumb" />目录
@@ -24,7 +24,9 @@
   </div>
 </template>
 <script>
-import Breadcrumb from "@comp/Breadcrumb";
+import debug from "@utils/debug";
+import Breadcrumb from "@comps/Breadcrumb";
+import { mapState } from 'vuex';
 import { Upload, Icon } from "ant-design-vue";
 
 const { Dragger: UploadDragger } = Upload;
@@ -36,14 +38,14 @@ export default {
     Icon
   },
   data() {
-    return {};
+    return {
+      uploadUrl: `/api/upload`
+    };
   },
   computed: {
-    uploadUrl() {
-      return `/api/upload`;
-    },
+    ...mapState(['config']),
     fileSizeLimit() {
-      return this.$store.state.config.limit;
+      return this.config.limit;
     }
   },
   methods: {
@@ -51,7 +53,7 @@ export default {
       const { file, fileList } = info;
       const status = file.status;
       if (status !== "uploading") {
-        console.log(file, fileList);
+        isDev && debug.log('upload status change', file, fileList);
       }
       if (status === "done") {
         this.$message.success(`${file.name} 上传成功！`);
@@ -68,7 +70,7 @@ export default {
   height: 250px;
   .breadcrumb {
     display: inline-block;
-    margin: 0 .5em;
+    margin: 0 0.5em;
   }
 }
 </style>

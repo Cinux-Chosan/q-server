@@ -1,25 +1,27 @@
 <template>
-  <div class="home">
+  <div class="home unselectable">
     <Spin :spinning="spinning" :delay="300">
-      <ul class="fileList clearfix allowRangeSelector" :key="$route.query.dir">
-        <li
-          @dblclick="onDirChange({ path: '..', isDir: true})"
-          class="fileItem parentDir"
-          key=".."
-          v-if="showParentDir"
-        >
-          <SvgIcon icon-class="dir" class="iconItem" />
-          <p class="fileName ellipsis">..</p>
-        </li>
-        <li
-          v-for="(file, index) in filteredFiles"
-          ref="filteredFiles"
-          :key="file.fullPath"
-          @click.stop="setSelect(file, index, $event)"
-          @dblclick="onDirChange(file)"
-          :class="['fileItem', file.selected ? 'selected' : '']"
-        >
-          <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
+      <ContextMenu @open="onDirChange">
+        <ul class="fileList clearfix" :key="pageKey">
+          <li
+            @dblclick="onDirChange({ path: '..', isDir: true})"
+            class="fileItem parentDir"
+            key=".."
+            v-if="showParentDir"
+          >
+            <SvgIcon icon-class="dir" class="iconItem" />
+            <p class="fileName ellipsis">..</p>
+          </li>
+          <li
+            v-for="(file, index) in filteredFiles"
+            ref="filteredFiles"
+            :key="file.fullPath"
+            @click.stop="setSelect(file, index, $event)"
+            @dblclick="onDirChange(file)"
+            :class="['fileItem', file.selected ? 'selected' : '']"
+            :data-path="file.basename"
+          >
+            <!-- <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
             <template #content>
               <div class="popoverContent">
                 <p>文件名：{{file.basename}}</p>
@@ -27,15 +29,18 @@
                 <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
                 <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
               </div>
-            </template>
-            <ContextMenu :file="file" @open="onDirChange">
+            </template>-->
+
+            <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
+            <a class="block" ref="link" :href="getHref(file)" @click.prevent draggable="false">
               <SvgIcon :icon-class="file | fileType" class="iconItem" />
               <p class="fileName ellipsis">{{file.basename}}</p>
-            </ContextMenu>
-          </Popover>
-        </li>
-      </ul>
-      <Empty description="空空如也~" v-if="isEmpty" />
+            </a>
+            <!-- </Popover> -->
+          </li>
+        </ul>
+        <Empty description="空空如也~" v-if="isEmpty" />
+      </ContextMenu>
     </Spin>
   </div>
 </template>
@@ -44,11 +49,12 @@
 import path from "path";
 import moment from "moment";
 import bytes from "bytes";
-import SvgIcon from "@comp/SvgIcon";
-import ContextMenu from "@comp/ContextMenu";
+import SvgIcon from "@comps/SvgIcon";
+import ContextMenu from "@comps/ContextMenu";
 import iconMap from "@icons/map";
 import { Popover, Empty, Spin } from "ant-design-vue";
 import { isNull } from "@utils";
+import debug from "@utils/debug";
 import { mapActions, mapMutations, mapGetters } from "vuex";
 
 const originData = {
@@ -62,6 +68,7 @@ export default {
       path: location.pathname,
       showParentDir: false,
       spinning: false,
+      pageKey: this.$route.query.dir,
       ...originData
     };
   },
@@ -73,7 +80,14 @@ export default {
     ContextMenu
   },
   watch: {
-    "$route.query.dir": ["setCancelStatus", "loadFiles", "resetSearchText"],
+    "$route.query.dir": ["loadFiles"],
+    allFiles: [
+      "resetSearchText",
+      function() {
+        // 请求到数据结束后刷新 pageKey，避免无用的 diff 比较
+        this.pageKey = this.$route.query.dir;
+      }
+    ],
     filteredFiles() {
       const { dir } = this.$route.query;
       this.showParentDir = dir && dir !== "/";
@@ -83,7 +97,7 @@ export default {
     this.loadFiles();
   },
   computed: {
-    ...mapGetters(["filteredFiles", "selectedFiles"]),
+    ...mapGetters(["allFiles", "filteredFiles", "selectedFiles"]),
     currentPath() {
       return decodeURIComponent(this.$route.query.dir || "/");
     },
@@ -92,19 +106,17 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["fetchFiles", "setSelectFiles"]),
-    ...mapMutations({
-      resetSearchText: commit => commit("updateSearchText", ""),
-      setCancelStatus: commit => commit("updateCancelStatus", false)
+    ...mapActions(["fetchFiles", "setSelectFiles", "getBoundingClientRect"]),
+    ...mapActions({
+      resetSearchText: dispatch => dispatch("setSearchText")
     }),
     async loadFiles() {
+      this.spinning = true;
       try {
-        this.spinning = true;
         await this.fetchFiles(this.currentPath);
       } catch (error) {
-        //
+        isDev && debug.error(error);
       } finally {
-        console.log('loadFiles')
         this.spinning = false;
       }
     },
@@ -174,6 +186,19 @@ export default {
       }
       // 统一设置选中状态
       this.setSelectFiles([true, currentSelected]);
+    },
+    getHref(file) {
+      if (file.isDir) {
+        const { query, ...rest } = this.$route;
+        const { dir = "/" } = query;
+        const { href } = this.$router.resolve({
+          ...rest,
+          query: { ...query, dir: path.join(dir, file.basename) }
+        });
+        return href;
+      } else {
+        return file.fullPath;
+      }
     }
   },
   filters: {

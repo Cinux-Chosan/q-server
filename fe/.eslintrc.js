@@ -11,8 +11,18 @@ module.exports = {
     }
   },
   rules: {
-    "no-console": "off",
-    "no-debugger": "off",
-    "no-dupe-keys": "off"
+    "no-console": onOrOff(),
+    "no-debugger": onOrOff(),
+    "no-dupe-keys": onOrOff(),
+    "vue/no-unused-components": onOrOff(),
+    "no-unused-vars": onOrOff(),
+    "no-constant-condition": onOrOff()
+  },
+  globals: {
+    isDev: false
   }
 };
+
+function onOrOff() {
+  return process.env.NODE_ENV === "production" ? "error" : "off";
+}

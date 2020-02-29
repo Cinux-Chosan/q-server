@@ -1,32 +1,34 @@
 <template>
-  <div>
-    <InputSearch
-      placeholder="搜索"
-      class="inputSearch"
-      :value="$store.state.searchText"
-      @change="onSearch"
-    />
+  <div @keydown.stop.65>
+    <InputSearch placeholder="搜索" class="inputSearch" :value="searchText" @change="setSearchText" />
+    <Question />
   </div>
 </template>
 <script>
+import Question from '@comps/Question'
 import { Input } from "ant-design-vue";
-// import { debounce } from "@utils/decorator";
+import { mapActions, mapState } from "vuex";
 const { Search: InputSearch } = Input;
 
 export default {
   components: {
+    Question,
     InputSearch
   },
+  computed: {
+    ...mapState(["searchText"])
+  },
   methods: {
-    // @debounce(200)
-    onSearch(evt) {
-      this.$store.commit("updateSearchText", evt.target.value);
-    }
+    ...mapActions({
+      setSearchText(dispatch, evt) {
+        dispatch("setSearchText", evt.target.value);
+      }
+    })
   }
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .inputSearch {
   width: 200px;
 }

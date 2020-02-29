@@ -3,7 +3,7 @@
     <RangeSelector>
       <div id="nav" class="clearfix">
         <div class="navBreadcrumb">
-          <Breadcrumb />
+          <Breadcrumb class="unselectable"/>
         </div>
         <div class="navActions">
           <template v-if="uploadable">
@@ -13,6 +13,7 @@
           </template>
         </div>
         <Search v-show="$route.path === '/'" class="navSearch" />
+        <!-- <Question /> -->
       </div>
       <keep-alive>
         <router-view />
@@ -24,9 +25,10 @@
 
 <script>
 import request from "@req";
-import Search from "@comp/Search";
-import Breadcrumb from "@comp/Breadcrumb";
-import RangeSelector from "@comp/RangeSelector";
+import Search from "@comps/Search";
+import Question from '@comps/Question'
+import Breadcrumb from "@comps/Breadcrumb";
+import RangeSelector from "@comps/RangeSelector";
 import { BackTop, Divider } from "ant-design-vue";
 
 export default {
@@ -34,6 +36,7 @@ export default {
     Search,
     Divider,
     BackTop,
+    Question,
     Breadcrumb,
     RangeSelector
   },

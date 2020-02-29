@@ -1,8 +1,9 @@
 import request from "@req";
+import debug from "@utils/debug";
 import { message } from "ant-design-vue";
 
-export const isDev = process.isDev
-
+export const opKeys = ["metaKey", "ctrlKey", "altKey"];
+export const isOpkeyPressed = evt => opKeys.find(key => evt[key]);
 export const isParentDir = file => file.path === "..";
 export const isNull = value => value === null;
 export const isUndefined = value => value === undefined;
@@ -40,7 +41,7 @@ export const createDownloadIframe = async url => {
       const { readyState } = iframeDoc;
       return ["complete", "interactive"].includes(readyState);
     } catch (error) {
-      console.log("error", error);
+      isDev && debug.error('createDownloadIframe', error);
     }
   }, -1);
   // setTimeout(() => document.body.removeChild(iframe), 20000);
@@ -53,9 +54,7 @@ export const download = async (downloadList, path) => {
     return { path, fullPath, isDir, basename };
   });
   const downloadId = await request("/api/download", { downloadList, path });
-  return createDownloadIframe(
-    `/api/download?isDownload=&downloadId=${downloadId}`
-  );
+  return createDownloadIframe(`/api/download?isDownload=&downloadId=${downloadId}`);
 };
 
 export const copyTextToClipBoard = text => {

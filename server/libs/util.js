@@ -1,24 +1,33 @@
-const fs = require('fs');
+const fs = require("fs");
 const path = require("path");
 const cheerio = require("cheerio");
-const args = require('./args');
+const args = require("./args");
 const { http } = require("./debug");
 
 /**
- * Check if it's hidden.
+ * 是否是 dev 环境
+ */
+const isDev = process.env.NODE_ENV === "dev";
+
+/**
+ * 检查 root 之后的路径是否是隐藏文件或目录
  */
 
 const isHidden = (root, filePath) => {
   filePath = filePath.substr(root.length).split(path.sep);
   for (let i = 0; i < filePath.length; i++) {
-    if (filePath[i][0] === ".") return true;
+    const firstChar = filePath[i] && filePath[i].trim()[0];
+    if (firstChar === ".") return true;
   }
   return false;
 };
 
-const isDev = process.env.NODE_ENV === "dev";
-
-const isAccessible = (root, absPath) => !path.relative(root, absPath).startsWith('..')
+/**
+ * 检测 absPath 是否越过了 root，成为了 root 的上级
+ * @param {String} root 根路由，absPath 不能越过根路径
+ * @param {String} absPath 用于检测的路径
+ */
+const isAccessible = (root, absPath) => !path.relative(root, absPath).startsWith("..");
 
 /**
  * 根据命令行参数修改 index.html#title
@@ -39,18 +48,17 @@ const checkAccessble = (ctx, next) => {
   } else {
     return ctx.throw(401, "access_denied");
   }
-}
+};
 
-// 记录请求信息
+// 记录每次请求信息
 const logReq = (ctx, next) => {
-  // 打印每次请求信息
   http(`\t${ctx.path} from \t${ctx.ip}`);
   return next();
-}
+};
 
 module.exports = exports = {
-  isHidden,
   isDev,
+  isHidden,
   isAccessible,
   getIndexFileCache,
   checkAccessble,
