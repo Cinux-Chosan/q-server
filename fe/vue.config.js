@@ -22,7 +22,9 @@ module.exports = {
         "@comps": path.join(__dirname, "src/components"),
         "@directives": path.join(__dirname, "src/directives"),
         "@classes": path.join(__dirname, "src/classes"),
-        "@icons": path.join(__dirname, "src/Icons")
+        "@icons": path.join(__dirname, "src/Icons"),
+        "@router": path.join(__dirname, "src/router"),
+        "@store": path.join(__dirname, "src/store")
       }
     }
   },
@@ -56,7 +58,7 @@ module.exports = {
       .plugin("DefinePlugin")
       .use(webpack.DefinePlugin, [
         {
-          "isDev": JSON.stringify(config.get("mode") !== "production")
+          isDev: JSON.stringify(config.get("mode") !== "production")
         }
       ])
       .end();

@@ -1,0 +1,127 @@
+<template>
+  <span>
+    <Drawer
+      title="设置"
+      placement="right"
+      :closable="true"
+      @close="onClose"
+      :visible="visible"
+      width="340"
+    >
+      <Form>
+        <FormItem label="排序类型">
+          <RadioGroup
+            @change="updateState({ 'settings.sortType': $event.target.value})"
+            :value="settings.sortType"
+            buttonStyle="solid"
+          >
+            <RadioButton :value="ENUM_SORT_TYPE.NAME">名称</RadioButton>
+            <RadioButton :value="ENUM_SORT_TYPE.SIZE">大小</RadioButton>
+            <RadioButton :value="ENUM_SORT_TYPE.TYPE">类型</RadioButton>
+            <RadioButton :value="ENUM_SORT_TYPE.CREAT_TIME">创建时间</RadioButton>
+          </RadioGroup>
+        </FormItem>
+        <FormItem label="排序方式">
+          <RadioGroup
+            @change="updateState({ 'settings.sortOrder': $event.target.value})"
+            :value="settings.sortOrder"
+            buttonStyle="solid"
+          >
+            <RadioButton :value="ENUM_SORT_ORDER.ASC">升序</RadioButton>
+            <RadioButton :value="ENUM_SORT_ORDER.DESC">降序</RadioButton>
+          </RadioGroup>
+        </FormItem>
+        <FormItem label="呈现方式">
+          <RadioGroup
+            @change="updateState({ 'settings.displayType': $event.target.value})"
+            :value="settings.displayType"
+            buttonStyle="solid"
+          >
+            <RadioButton :value="ENUM_DISPLAY_TYPE.GRID">网格</RadioButton>
+            <RadioButton :value="ENUM_DISPLAY_TYPE.LIST">列表</RadioButton>
+          </RadioGroup>
+        </FormItem>
+        <!-- <FormItem label="是否分页" v-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST">
+          <ASwitch
+            :checked="settings.isPagination"
+            @change="updateState({ 'settings.isPagination': $event})"
+          />
+        </FormItem> -->
+        <FormItem label="大小" v-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST">
+          <RadioGroup
+            @change="updateState({ 'settings.displaySize': $event.target.value})"
+            :value="settings.displaySize"
+            buttonStyle="solid"
+          >
+            <RadioButton :value="ENUM_DISPLAY_SIZE.BIG">大图标</RadioButton>
+            <RadioButton :value="ENUM_DISPLAY_SIZE.SMALL">小图标</RadioButton>
+          </RadioGroup>
+        </FormItem>
+      </Form>
+    </Drawer>
+    <SvgIcon icon-class="gears" class="questionMark inlineBlock" @click="openHelp" />
+  </span>
+</template>
+<script>
+import SvgIcon from "@comps/SvgIcon";
+import { Drawer, Form, Radio, Switch as ASwitch } from "ant-design-vue";
+import {
+  ENUM_SORT_TYPE,
+  ENUM_SORT_ORDER,
+  ENUM_DISPLAY_TYPE,
+  ENUM_DISPLAY_SIZE,
+  ENUM_DISPLAY_TYPE_LIST_IS_PAGINATION
+} from "@utils/enums";
+import { mapState, mapMutations, mapActions } from "vuex";
+
+const { Item: FormItem } = Form;
+const { Group: RadioGroup, Button: RadioButton } = Radio;
+
+export default {
+  components: {
+    SvgIcon,
+    Drawer,
+    Form,
+    ASwitch,
+    FormItem,
+    RadioGroup,
+    RadioButton
+  },
+  data() {
+    return {
+      visible: false,
+      ENUM_SORT_TYPE,
+      ENUM_SORT_ORDER,
+      ENUM_DISPLAY_TYPE,
+      ENUM_DISPLAY_SIZE,
+      ENUM_DISPLAY_TYPE_LIST_IS_PAGINATION
+    };
+  },
+  computed: mapState(["settings"]),
+  methods: {
+    ...mapMutations(["updateState"]),
+    ...mapActions(["getBoundingClientRect"]),
+    openHelp() {
+      this.visible = true;
+    },
+    onClose() {
+      this.visible = false;
+      this.getBoundingClientRect();
+    }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+.questionMark {
+  width: 30px;
+  font-size: 20px;
+  margin-left: 10px;
+  vertical-align: middle;
+  transition: all ease 0.2s;
+  cursor: pointer;
+  &:hover {
+    font-size: 26px;
+  }
+}
+</style>

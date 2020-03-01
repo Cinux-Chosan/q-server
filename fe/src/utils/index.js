@@ -1,5 +1,9 @@
+import path from "path";
 import request from "@req";
+import moment from "moment";
+import router from "@router";
 import debug from "@utils/debug";
+import iconMap from "@icons/map";
 import { message } from "ant-design-vue";
 
 export const opKeys = ["metaKey", "ctrlKey", "altKey"];
@@ -7,6 +11,7 @@ export const isOpkeyPressed = evt => opKeys.find(key => evt[key]);
 export const isParentDir = file => file.path === "..";
 export const isNull = value => value === null;
 export const isUndefined = value => value === undefined;
+export const noop = () => {};
 export const wait = (fn, timeout = 3000, interval = 100) => {
   const infinity = timeout < 0;
   return new Promise((res, rej) => {
@@ -41,7 +46,7 @@ export const createDownloadIframe = async url => {
       const { readyState } = iframeDoc;
       return ["complete", "interactive"].includes(readyState);
     } catch (error) {
-      isDev && debug.error('createDownloadIframe', error);
+      isDev && debug.error("createDownloadIframe", error);
     }
   }, -1);
   // setTimeout(() => document.body.removeChild(iframe), 20000);
@@ -79,5 +84,40 @@ export const copyTextToClipBoard = text => {
   } finally {
     document.body.removeChild(textarea); //删除元素
     currentFocus.focus();
+  }
+};
+
+export const setValue = (obj, key, value) => {
+  const segments = key.split(".");
+  const lastButOneIndex = segments.length - 1;
+  for (let i = 0; i < lastButOneIndex; i++) {
+    obj = obj[segments[i]];
+    if (!obj && typeof obj !== "object")
+      throw new Error(`setValue 错误，obj.${segments.slice(0, i + 1).join(".")} 不存在`);
+  }
+  obj[segments[lastButOneIndex]] = value;
+};
+
+export const formatTime = time => {
+  return moment(time).format("YYYY/MM/DD HH:mm:ss");
+};
+
+export const fileType = file => {
+  if (file.isDir) return "dir";
+  return iconMap[file.fileExt] || "file";
+};
+
+export const getHref = file => {
+  const route = router.currentRoute;
+  if (file.isDir) {
+    const { query, ...rest } = route;
+    const { dir = "/" } = query;
+    const { href } = router.resolve({
+      ...rest,
+      query: { ...query, dir: path.join(dir, file.basename) }
+    });
+    return href;
+  } else {
+    return file.fullPath;
   }
 };

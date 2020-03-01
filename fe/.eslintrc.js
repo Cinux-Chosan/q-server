@@ -16,7 +16,8 @@ module.exports = {
     "no-dupe-keys": onOrOff(),
     "vue/no-unused-components": onOrOff(),
     "no-unused-vars": onOrOff(),
-    "no-constant-condition": onOrOff()
+    "no-constant-condition": onOrOff(),
+    "no-prototype-builtins": "off"
   },
   globals: {
     isDev: false

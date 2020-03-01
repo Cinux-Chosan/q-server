@@ -1,18 +1,18 @@
 <template>
   <div @keydown.stop.65>
     <InputSearch placeholder="搜索" class="inputSearch" :value="searchText" @change="setSearchText" />
-    <Question />
+    <Settings />
   </div>
 </template>
 <script>
-import Question from '@comps/Question'
+import Settings from '@comps/Settings'
 import { Input } from "ant-design-vue";
 import { mapActions, mapState } from "vuex";
 const { Search: InputSearch } = Input;
 
 export default {
   components: {
-    Question,
+    Settings,
     InputSearch
   },
   computed: {

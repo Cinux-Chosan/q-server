@@ -8,12 +8,12 @@ const routes = [
     path: "/upload",
     name: "Upload",
     component: () =>
-      import(/* webpackChunkName: "upload" */ "../views/Upload.vue")
+      import(/* webpackChunkName: "upload" */ "../views/Upload")
   },
   {
     path: "*",
     name: "Home",
-    component: () => import(/* webpackChunkName: "home" */ "../views/Home.vue")
+    component: () => import(/* webpackChunkName: "home" */ "../views/Home")
   }
 ];
 

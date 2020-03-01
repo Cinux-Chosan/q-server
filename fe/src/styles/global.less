@@ -22,24 +22,29 @@ body {
   text-overflow: ellipsis;
 }
 
-.block {
-  display: block;
-}
-
-.inlineBlock {
-  display: inline-block;
-}
-
-.hidden {
-  display: none;
-}
-
-.unselectable{
-  user-select: none;
-}
-
 .outOfViewport {
   position: fixed;
   left: -100%;
   max-width: 100%;
+}
+
+// 样式覆盖
+.block {
+  display: block !important;
+}
+
+.inlineBlock {
+  display: inline-block !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.unselectable {
+  user-select: none !important;
+}
+
+.noTransition {
+  transition: none !important;
 }

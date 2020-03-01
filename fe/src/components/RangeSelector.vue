@@ -1,6 +1,6 @@
 <template>
+    <!-- v-autofocus="searchText" -->
   <div
-    v-autofocus="searchText"
     tabindex="0"
     class="rangeSelectorContainer"
     @mousedown.left="onMouseDown"
@@ -9,7 +9,7 @@
     @touchstart="onMouseDown"
     @touchmove="onMouseMove"
     @touchend="onMouseUp"
-    @keydown.65="selectAll"
+    @keydown.capture.65="selectAll"
   >
     <slot />
     <div class="rangeSelectorBox" :style="rect.css" v-if="isShowRect"></div>
@@ -85,7 +85,9 @@ export default {
       const selectedList = [];
       filteredFiles.forEach(
         file =>
-          rangeRect.hasIntersectionWith(file.domRect) && selectedList.push(file)
+          file.domRect &&
+          rangeRect.hasIntersectionWith(file.domRect) &&
+          selectedList.push(file)
       );
       this.setSelectFilesThrottled([true, selectedList]);
     },

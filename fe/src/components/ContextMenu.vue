@@ -134,8 +134,8 @@ export default {
     onContextMenu(evt) {
       const pointerPos = new Point(evt.pageX, evt.pageY);
       const { filteredFiles, files, isBatch } = this;
-      const pointerOn = filteredFiles.find(({ domRect }, index) =>
-        domRect.isPointIn(pointerPos)
+      const pointerOn = filteredFiles.find(
+        ({ domRect }, index) => domRect && domRect.isPointIn(pointerPos)
       );
       if (pointerOn) {
         !isBatch && this.setSelectFiles([true, [pointerOn]]);

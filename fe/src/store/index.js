@@ -5,8 +5,10 @@ import Rect from "@classes/Rect";
 import debug from "@utils/debug";
 import syncState, { loadStateFromLocalStorage } from "./plugins/syncState";
 import watcher from "./plugins/watchers";
-import { ENUM_SORT_TYPE, ENUM_SORT_ORDER } from "@utils/enums";
+import { ENUM_SORT_TYPE, ENUM_SORT_ORDER, ENUM_DISPLAY_TYPE, ENUM_DISPLAY_SIZE } from "@utils/enums";
 import { debounce } from "@utils/decorators";
+import { setValue } from "../utils";
+import store from "@store";
 
 const log = (...args) => isDev && debug.log(...args);
 
@@ -20,10 +22,18 @@ export default new Vuex.Store({
     searchText: "",
     boundingClientRects: [],
     cancelSetSelect: false,
-    // 排序方式
-    sortType: ENUM_SORT_TYPE.NAME,
-    // 升序降序
-    sortOrder: ENUM_SORT_ORDER.ASC
+    settings: {
+      // 排序方式
+      sortType: ENUM_SORT_TYPE.NAME,
+      // 升序降序
+      sortOrder: ENUM_SORT_ORDER.ASC,
+      // 排序方式
+      displayType: ENUM_DISPLAY_TYPE.GRID,
+      // 列表方式是否分页
+      isPagination: false,
+      // 列表方式图标大小
+      displaySize: ENUM_DISPLAY_SIZE.SMALL
+    }
   }),
   mutations: {
     updateFileList(state, files) {
@@ -46,11 +56,10 @@ export default new Vuex.Store({
       state.boundingClientRects = boundingClientRects;
       log("updateBoundingClientRects", boundingClientRects);
     },
-    updateSortType(state, type) {
-      state.sortType = type;
-    },
-    updateSortOrder(state, order) {
-      state.sortOrder = order;
+    updateState(state, values) {
+      for (const [key, val] of Object.entries(values)) {
+        setValue(state, key, val);
+      }
     },
     mergeRectToFile(state, rects) {
       const { files } = state;
@@ -86,7 +95,7 @@ export default new Vuex.Store({
       commit("updateSearchText", searchText);
       dispatch("getBoundingClientRect");
     },
-    @debounce(100)
+    @debounce(500)
     getBoundingClientRect({ commit }) {
       Vue.nextTick(() => {
         const domList = [...document.querySelectorAll("[data-path]")];
@@ -104,30 +113,54 @@ export default new Vuex.Store({
   },
   getters: {
     allFiles: ({ files }) => files,
-    filteredFiles: ({ files, searchText, sortType, sortOrder }) => {
+    filteredFiles: ({ files, searchText, settings }) => {
+      const { sortType, sortOrder } = settings;
       let filterd = files.filter(file => file.basename.includes(searchText));
       filterd.sort((prev, next) => {
         let result;
+        let {
+          isDir: prevIsDir,
+          basename: prevBaseName,
+          fileExt: prevExt,
+          stats: { birthtimeMs: prevBirthTime, size: prevSize }
+        } = prev;
+        let {
+          isDir: nextIsDir,
+          basename: nextBaseName,
+          fileExt: nextExt,
+          stats: { birthtimeMs: nextBirthTime, size: nextSize }
+        } = next;
+
+        prevBaseName = prevBaseName.trim().toLowerCase();
+        nextBaseName = nextBaseName.trim().toLowerCase();
+
         switch (sortType) {
           // 根据名称排序
           case ENUM_SORT_TYPE.NAME:
-            result = prev.basename.toLowerCase() > next.basename.toLowerCase() ? 1 : -1;
+            result = prevBaseName > nextBaseName ? 1 : -1;
+            break;
+          case ENUM_SORT_TYPE.SIZE:
+            {
+              if (prevIsDir && nextIsDir) result = prevBaseName > nextBaseName ? 1 : -1;
+              else if (!prevIsDir && !nextIsDir) result = prevSize - nextSize;
+              else result = prevIsDir ? -1 : 1;
+            }
             break;
           // 根据类型排序
           case ENUM_SORT_TYPE.TYPE:
             {
-              if (prev.isDir && next.isDir) {
+              if (prevIsDir && nextIsDir) {
                 // 目录没有扩展名，则根据名称排序
-                result = prev.basename.toLowerCase() > next.basename.toLowerCase() ? 1 : -1;
-              } else if (!prev.isDir && !next.isDir) {
-                result = prev.fileExt.toLowerCase() > next.fileExt.toLowerCase() ? 1 : -1;
+                result = prevBaseName > nextBaseName ? 1 : -1;
+              } else if (!prevIsDir && !nextIsDir) {
+                result = prevExt > nextExt ? 1 : -1;
               } else {
-                result = prev.isDir ? 1 : -1;
+                result = prevIsDir ? 1 : -1;
               }
             }
             break;
           case ENUM_SORT_TYPE.CREAT_TIME:
-            result = prev.stats.birthtimeMs - next.stats.birthtimeMs;
+            result = prevBirthTime - nextBirthTime;
             break;
           default:
             break;
