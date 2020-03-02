@@ -41,22 +41,31 @@
             <RadioButton :value="ENUM_DISPLAY_TYPE.LIST">列表</RadioButton>
           </RadioGroup>
         </FormItem>
-        <!-- <FormItem label="是否分页" v-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST">
-          <ASwitch
-            :checked="settings.isPagination"
-            @change="updateState({ 'settings.isPagination': $event})"
-          />
-        </FormItem> -->
-        <FormItem label="大小" v-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST">
-          <RadioGroup
-            @change="updateState({ 'settings.displaySize': $event.target.value})"
-            :value="settings.displaySize"
-            buttonStyle="solid"
-          >
-            <RadioButton :value="ENUM_DISPLAY_SIZE.BIG">大图标</RadioButton>
-            <RadioButton :value="ENUM_DISPLAY_SIZE.SMALL">小图标</RadioButton>
-          </RadioGroup>
-        </FormItem>
+        <template v-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST">
+          <FormItem label="是否分页">
+            <ASwitch
+              :checked="settings.isPagination"
+              @change="updateState({ 'settings.isPagination': $event})"
+            />
+          </FormItem>
+          <FormItem label="每页大小">
+            <InputNumber
+              :min="5"
+              :value="settings.listPageSize"
+              @change="n => updateState({'settings.listPageSize': Math.max(n, 5)})"
+            />
+          </FormItem>
+          <FormItem label="文字大小">
+            <RadioGroup
+              @change="updateState({ 'settings.displaySize': $event.target.value})"
+              :value="settings.displaySize"
+              buttonStyle="solid"
+            >
+              <RadioButton :value="ENUM_DISPLAY_SIZE.BIG">大</RadioButton>
+              <RadioButton :value="ENUM_DISPLAY_SIZE.SMALL">小</RadioButton>
+            </RadioGroup>
+          </FormItem>
+        </template>
       </Form>
     </Drawer>
     <SvgIcon icon-class="gears" class="questionMark inlineBlock" @click="openHelp" />
@@ -64,7 +73,13 @@
 </template>
 <script>
 import SvgIcon from "@comps/SvgIcon";
-import { Drawer, Form, Radio, Switch as ASwitch } from "ant-design-vue";
+import {
+  Drawer,
+  Form,
+  Radio,
+  Switch as ASwitch,
+  InputNumber
+} from "ant-design-vue";
 import {
   ENUM_SORT_TYPE,
   ENUM_SORT_ORDER,
@@ -85,7 +100,8 @@ export default {
     ASwitch,
     FormItem,
     RadioGroup,
-    RadioButton
+    RadioButton,
+    InputNumber
   },
   data() {
     return {

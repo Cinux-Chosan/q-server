@@ -2,12 +2,7 @@
   <div class="home unselectable">
     <Spin :spinning="spinning" :delay="300">
       <ContextMenu @open="onDirChange">
-        <div
-          :key="pageKey"
-          @animationend="getBoundingClientRect"
-          @transitionend="getBoundingClientRect"
-          class="homeDisplay"
-        >
+        <div :key="pageKey" class="homeDisplay">
           <transition name="homeDisplay">
             <GridStyle
               :showParentDir="showParentDir"
@@ -96,6 +91,7 @@ export default {
     ...mapActions({
       resetSearchText: dispatch => dispatch("setSearchText")
     }),
+   
     async loadFiles() {
       this.spinning = true;
       try {

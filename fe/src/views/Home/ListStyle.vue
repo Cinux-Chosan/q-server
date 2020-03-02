@@ -58,18 +58,21 @@ export default {
     }
   },
   render(h) {
-    const { listData, customRow, columns } = this;
+    const { listData, customRow, columns, settings } = this;
+    const paginationOpt = settings.isPagination && {
+      pageSize: settings.listPageSize
+    };
     return (
-      <div vOn:animationend_stop={noop} vOn:transitionend_stop={noop}>
-        <Table
-          columns={columns}
-          dataSource={listData}
-          rowKey="basename"
-          pagination={false}
-          customRow={customRow}
-          locale={{ emptyText: <Empty description="空空如也~" /> }}
-        ></Table>
-      </div>
+      // <div vOn:animationend_stop={noop} vOn:transitionend_stop={noop}>
+      <Table
+        columns={columns}
+        dataSource={listData}
+        rowKey="basename"
+        pagination={paginationOpt}
+        customRow={customRow}
+        locale={{ emptyText: <Empty description="空空如也~" /> }}
+      ></Table>
+      // </div>
     );
   }
 };

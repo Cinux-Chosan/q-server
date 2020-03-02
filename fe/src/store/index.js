@@ -8,7 +8,6 @@ import watcher from "./plugins/watchers";
 import { ENUM_SORT_TYPE, ENUM_SORT_ORDER, ENUM_DISPLAY_TYPE, ENUM_DISPLAY_SIZE } from "@utils/enums";
 import { debounce } from "@utils/decorators";
 import { setValue } from "../utils";
-import store from "@store";
 
 const log = (...args) => isDev && debug.log(...args);
 
@@ -32,32 +31,15 @@ export default new Vuex.Store({
       // 列表方式是否分页
       isPagination: false,
       // 列表方式图标大小
-      displaySize: ENUM_DISPLAY_SIZE.SMALL
+      displaySize: ENUM_DISPLAY_SIZE.SMALL,
+      // 列表方式默认每页展示多少行
+      listPageSize: 10
     }
   }),
   mutations: {
-    updateFileList(state, files) {
-      window.f = state.files = files;
-      log("updateFileList", files);
-    },
-    updateSearchText(state, searchText) {
-      state.searchText = searchText;
-      log("updateSearchText", searchText);
-    },
-    updateConfig(state, config) {
-      state.config = config;
-      log("updateConfig", config);
-    },
-    updateCancelStatus(state, value) {
-      state.cancelSetSelect = value;
-      log("updateCancelStatus", value);
-    },
-    updateBoundingClientRects(state, boundingClientRects) {
-      state.boundingClientRects = boundingClientRects;
-      log("updateBoundingClientRects", boundingClientRects);
-    },
     updateState(state, values) {
       for (const [key, val] of Object.entries(values)) {
+        log(key, val)
         setValue(state, key, val);
       }
     },
@@ -71,19 +53,28 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    /**
+     * 获取指定路径下的文件列表
+     * @param {Store} param0 Vuex store
+     * @param {String} dir 获取当前路径下的文件列表
+     */
     async fetchFiles({ commit, dispatch }, dir) {
       let files;
       try {
         files = (await request("/api/files", { dir })) || [];
-        commit("updateCancelStatus", false);
+        commit("updateState", { cancelSetSelect: false });
         files.forEach(file => (file.selected = false));
       } catch (err) {
         files = [];
       }
-      commit("updateFileList", files);
-      dispatch("getBoundingClientRect");
+      commit("updateState", { files });
     },
-    // 设置 list 中元素的 selected 字段
+    // 批量设置 list 中元素的 selected 字段
+    /**
+     * 
+     * @param {Store} param0 Vuex store
+     * @param {Array} param1 [是否选中, 需要被选中的列表(不在列表中的将会设置相反状态), 是否通过 index 来设置（默认为 false）]
+     */
     setSelectFiles({ getters: { filteredFiles: files }, state }, [selected, list = [], byIndex]) {
       files.forEach((file, index) => {
         if (!state.cancelSetSelect) {
@@ -91,28 +82,37 @@ export default new Vuex.Store({
         }
       });
     },
+    /**
+     * 设置搜索字符串，并重新获取 BoundingClientRect
+     * @param {Store} param0 Vuex store
+     * @param {String} searchText 搜索字符串
+     */
     setSearchText({ commit, dispatch }, searchText = "") {
-      commit("updateSearchText", searchText);
+      commit("updateState", { searchText });
       dispatch("getBoundingClientRect");
     },
-    @debounce(500)
-    getBoundingClientRect({ commit }) {
-      Vue.nextTick(() => {
-        const domList = [...document.querySelectorAll("[data-path]")];
-        const fileRects = domList.map(dom => {
-          const { left, top, width, height } = dom.getBoundingClientRect();
-          const rect = new Rect({ left, top, width, height });
-          rect.move(window.pageXOffset, window.pageYOffset);
-          rect.dom = dom;
-          return rect;
-        });
-        commit("updateBoundingClientRects", fileRects);
-        commit("mergeRectToFile", fileRects);
-      });
-    }
+    /**
+     * 重新计算 BoundingClientRect
+     * @param {Store} param0 Vuex store
+     */
+    @debounce(400)
+getBoundingClientRect({ commit }) {
+  Vue.nextTick(() => {
+    const domList = [...document.querySelectorAll("[data-path]")];
+    const fileRects = domList.map(dom => {
+      const { left, top, width, height } = dom.getBoundingClientRect();
+      const rect = new Rect({ left, top, width, height });
+      rect.move(window.pageXOffset, window.pageYOffset);
+      rect.dom = dom;
+      return rect;
+    });
+    commit("updateState", { boundingClientRects: fileRects });
+    commit("mergeRectToFile", fileRects);
+  });
+}
   },
-  getters: {
-    allFiles: ({ files }) => files,
+getters: {
+  allFiles: ({ files }) => files,
     filteredFiles: ({ files, searchText, settings }) => {
       const { sortType, sortOrder } = settings;
       let filterd = files.filter(file => file.basename.includes(searchText));
@@ -167,10 +167,8 @@ export default new Vuex.Store({
         }
         return result * sortOrder;
       });
-
       return filterd;
     },
-    selectedFiles: (state, { filteredFiles }) => filteredFiles.filter(file => file.selected)
-  },
-  modules: {}
+      selectedFiles: (state, { filteredFiles }) => filteredFiles.filter(file => file.selected)
+}
 });

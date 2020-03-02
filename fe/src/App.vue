@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" @animationend="onReflow" @transitionend="onReflow">
     <RangeSelector>
       <div id="nav" class="clearfix">
         <div class="navBreadcrumb">
@@ -24,10 +24,12 @@
 
 <script>
 import request from "@req";
+import debug from "@utils/debug";
 import Search from "@comps/Search";
 import Breadcrumb from "@comps/Breadcrumb";
 import RangeSelector from "@comps/RangeSelector";
 import { BackTop, Divider } from "ant-design-vue";
+import { mapActions, mapMutations } from "vuex";
 
 export default {
   components: {
@@ -49,9 +51,24 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["getBoundingClientRect"]),
+    ...mapMutations(["updateState"]),
     async getConfig() {
       const config = await request("/api/config");
-      this.$store.commit("updateConfig", config);
+      this.updateState({ config });
+    },
+    onReflow(evt) {
+      const {
+        animationName /** animationend */,
+        propertyName /** transitionend */
+      } = evt;
+      const cssTriggerProperty = animationName || propertyName;
+      isDev && debug.event("reflow", cssTriggerProperty);
+      // 这些 animation 不需要重新计算 BoundingClientRect
+      const excludeAnimaiton = ["color", "opacity"];
+      if (!excludeAnimaiton.find(exc => cssTriggerProperty.includes(exc))) {
+        this.getBoundingClientRect();
+      }
     }
   }
 };
