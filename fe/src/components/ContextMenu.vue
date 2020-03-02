@@ -89,7 +89,7 @@ export default {
      */
     copyHref() {
       const { firstSelectedFile: file } = this;
-      const url = file.dom.querySelector("a").href;
+      const url = file.dom.querySelector("a.fileLink").href;
       copyTextToClipBoard(url) && this.closeContextMenu();
     },
     /**

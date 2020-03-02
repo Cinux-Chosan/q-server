@@ -3,7 +3,7 @@ import FileIcon from "@comps/FileIcon";
 import { Table, Empty } from "ant-design-vue";
 import { mapGetters, mapState } from "vuex";
 import { ENUM_DISPLAY_SIZE } from "@utils/enums";
-import { formatTime } from "@utils/";
+import { formatTime, getHref, noop } from "@utils/";
 import bytes from "bytes";
 
 export default {
@@ -19,7 +19,7 @@ export default {
     Table
   },
   data() {
-    const { $createElement } = this
+    const { $createElement } = this;
     return {
       columns: createColumn.call(this, $createElement)
     };
@@ -83,11 +83,12 @@ function createColumn(h) {
       title: "文件名",
       dataIndex: "basename",
       customRender: (text, file) => {
+        const href = getHref(file);
         return (
-          <span>
+          <a href={href} class="block noTransition fileLink" draggable="false" vOn:click_prevent={noop}>
             <FileIcon file={file} class={$style.icon} />
             {file.basename}
-          </span>
+          </a>
         );
       }
     },

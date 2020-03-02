@@ -41,7 +41,7 @@
             </div>
           </template> -->
           <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-          <a :href="file | getHref" @click.prevent draggable="false" class="block noTransition">
+          <a :href="file | getHref" @click.prevent draggable="false" class="block noTransition fileLink">
             <FileIcon :file="file" class="iconItem" />
             <p class="fileName ellipsis">{{file.basename}}</p>
           </a>

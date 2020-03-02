@@ -6,6 +6,7 @@
     :visible="visible"
     :align="align"
   >
+    <!-- :getPopupContainer="g" -->
     <div
       @mouseover="onHover"
       @mouseleave.self="onMouseLeave"
@@ -58,7 +59,7 @@ export default {
     },
     align() {
       const { popOverClientRect: rect, pointer } = this;
-      const overflow = { adjustX: false, adjustY: false };
+      const overflow = { adjustX: true, adjustY: true };
       // debug.event("mouseover", rect, pointer);
       if (!rect || !pointer) return { offset: [0, 0], overflow };
       const rectTop = rect.top;
@@ -70,6 +71,9 @@ export default {
     }
   },
   methods: {
+    g(){
+      return document.querySelector('[data-path="@koa"]')
+    },
     onMouseLeave() {
       this.isShow = this.pointerOn = null;
     },
