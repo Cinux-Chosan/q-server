@@ -1,3 +1,4 @@
+// eslint-disable
 // icon 与 svg 图片映射
 
 export default {

@@ -1,11 +1,9 @@
-
-
 <script>
 import FileIcon from "@comps/FileIcon";
 import { Table, Empty } from "ant-design-vue";
 import { mapGetters, mapState } from "vuex";
 import { ENUM_DISPLAY_SIZE } from "@utils/enums";
-import { formatTime, noop } from "@utils/";
+import { formatTime } from "@utils/";
 import bytes from "bytes";
 
 export default {
@@ -21,8 +19,9 @@ export default {
     Table
   },
   data() {
+    const { $createElement } = this
     return {
-      columns: createColumn.apply(this)
+      columns: createColumn.call(this, $createElement)
     };
   },
   computed: {
@@ -49,10 +48,10 @@ export default {
         attrs: {
           "data-path": file.basename
         },
-        class: [file.selected && $style.selected, fileItem, size],
+        class: [file.selected && selected, fileItem, size],
         on: {
           click: event => this.$emit("setSelect", file, realIndex, event),
-          dblclick: event => this.$emit("onDirChange", file)
+          dblclick: () => this.$emit("onDirChange", file)
         }
       };
     }
@@ -77,16 +76,13 @@ export default {
   }
 };
 
-function createColumn() {
-  const { $createElement: h, $style } = this;
+function createColumn(h) {
+  const { $style } = this;
   const columns = [
     {
       title: "文件名",
       dataIndex: "basename",
       customRender: (text, file) => {
-        const { isDir, fileExt } = file;
-        const { big, small } = $style;
-        const { settings } = this;
         return (
           <span>
             <FileIcon file={file} class={$style.icon} />
@@ -106,7 +102,7 @@ function createColumn() {
     {
       title: "创建时间",
       dataIndex: "stats.birthtimeMs",
-      customRender: (txt, record) => {
+      customRender: txt => {
         return txt && formatTime(txt);
       }
     },

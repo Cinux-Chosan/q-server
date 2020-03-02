@@ -1,40 +1,43 @@
 <template>
   <div class="home unselectable">
     <Spin :spinning="spinning" :delay="300">
-      <ContextMenu @open="onDirChange">
-        <div :key="pageKey" class="homeDisplay">
-          <transition name="homeDisplay">
-            <GridStyle
-              :showParentDir="showParentDir"
-              :isEmpty="isEmpty"
-              @setSelect="setSelect"
-              @onDirChange="onDirChange"
-              v-if="settings.displayType === ENUM_DISPLAY_TYPE.GRID"
-            />
-            <ListStyle
-              :showParentDir="showParentDir"
-              :isEmpty="isEmpty"
-              @setSelect="setSelect"
-              @onDirChange="onDirChange"
-              v-else-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST"
-            />
-          </transition>
-        </div>
-      </ContextMenu>
+      <FileInfo>
+        <ContextMenu @open="onDirChange">
+          <div :key="pageKey" class="homeDisplay">
+            <transition name="homeDisplay">
+              <GridStyle
+                :showParentDir="showParentDir"
+                :isEmpty="isEmpty"
+                @setSelect="setSelect"
+                @onDirChange="onDirChange"
+                v-if="settings.displayType === ENUM_DISPLAY_TYPE.GRID"
+              />
+              <ListStyle
+                :showParentDir="showParentDir"
+                :isEmpty="isEmpty"
+                @setSelect="setSelect"
+                @onDirChange="onDirChange"
+                v-else-if="settings.displayType === ENUM_DISPLAY_TYPE.LIST"
+              />
+            </transition>
+          </div>
+        </ContextMenu>
+      </FileInfo>
     </Spin>
   </div>
 </template>
 
 <script>
 import path from "path";
-import ContextMenu from "@comps/ContextMenu";
-import { Popover, Spin } from "ant-design-vue";
-import { isNull } from "@utils";
 import debug from "@utils/debug";
+import ContextMenu from "@comps/ContextMenu";
+import FileInfo from "@comps/FileInfo";
+import { isNull } from "@utils";
+import { Popover, Spin } from "ant-design-vue";
+import { ENUM_DISPLAY_TYPE } from "@utils/enums";
 import { mapActions, mapGetters, mapState } from "vuex";
 import GridStyle from "./GridStyle";
 import ListStyle from "./ListStyle";
-import { ENUM_DISPLAY_TYPE } from "@utils/enums";
 
 const originData = {
   rangeBegin: null
@@ -55,6 +58,7 @@ export default {
   components: {
     Popover,
     Spin,
+    FileInfo,
     ContextMenu,
     GridStyle,
     ListStyle
@@ -91,7 +95,7 @@ export default {
     ...mapActions({
       resetSearchText: dispatch => dispatch("setSearchText")
     }),
-   
+
     async loadFiles() {
       this.spinning = true;
       try {

@@ -11,7 +11,7 @@ export const isOpkeyPressed = evt => opKeys.find(key => evt[key]);
 export const isParentDir = file => file.path === "..";
 export const isNull = value => value === null;
 export const isUndefined = value => value === undefined;
-export const noop = () => {};
+export const noop = () => { };
 export const wait = (fn, timeout = 3000, interval = 100) => {
   const infinity = timeout < 0;
   return new Promise((res, rej) => {
@@ -121,3 +121,10 @@ export const getHref = file => {
     return file.fullPath;
   }
 };
+
+/**
+ * 获取点所在的文件对象，如果没有怎返回 null
+ * @param {Point} point 点
+ * @param {Array} fileList 文件列表
+ */
+export const getPointerOn = (point, fileList) => fileList.find(({ domRect }) => domRect && domRect.isPointIn(point))

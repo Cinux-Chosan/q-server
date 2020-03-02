@@ -24,21 +24,27 @@
         @click.stop="$emit('setSelect', file, index, $event)"
         @dblclick="$emit('onDirChange', file)"
       >
-        <!-- <Popover title placement="topLeft" arrowPointAtCenter :mouseEnterDelay="1">
-            <template #content>
-              <div class="popoverContent">
-                <p>文件名：{{file.basename}}</p>
-                <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
-                <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
-                <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
-              </div>
-        </template>-->
-
-        <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-        <a :href="file | getHref" @click.prevent draggable="false" class="block noTransition">
-          <FileIcon :file="file" class="iconItem" />
-          <p class="fileName ellipsis">{{file.basename}}</p>
-        </a>
+        <!-- <Popover
+          title
+          placement="topLeft"
+          arrowPointAtCenter
+          :mouseEnterDelay="1"
+          :getPopupContainer="getPopupContainer"
+          :key="file.basename"
+        >
+          <template #content>
+            <div class="popoverContent" :key="file.basename">
+              <p>文件名：{{file.basename}}</p>
+              <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
+              <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
+              <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
+            </div>
+          </template> -->
+          <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
+          <a :href="file | getHref" @click.prevent draggable="false" class="block noTransition">
+            <FileIcon :file="file" class="iconItem" />
+            <p class="fileName ellipsis">{{file.basename}}</p>
+          </a>
         <!-- </Popover> -->
       </li>
     </transition-group>
@@ -52,7 +58,7 @@ import bytes from "bytes";
 import FileIcon from "@comps/FileIcon";
 import { formatTime, fileType, getHref } from "@utils";
 import { mapActions, mapGetters } from "vuex";
-import { Empty } from "ant-design-vue";
+import { Empty, Popover } from "ant-design-vue";
 
 export default {
   props: {
@@ -65,10 +71,16 @@ export default {
   },
   components: {
     FileIcon,
-    Empty
+    Empty,
+    Popover
   },
   computed: mapGetters(["filteredFiles"]),
-  methods: mapActions(["getBoundingClientRect"]),
+  methods: {
+    ...mapActions(["getBoundingClientRect"]),
+    getPopupContainer() {
+      return document.getElementById("popContainer");
+    }
+  },
   filters: {
     formatTime,
     fileType,

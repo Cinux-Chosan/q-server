@@ -45,10 +45,16 @@ export default new Vuex.Store({
     },
     mergeRectToFile(state, rects) {
       const { files } = state;
-      rects.forEach(domRect => {
-        const { dom } = domRect;
-        const file = files.find(file => file.basename === dom.dataset["path"]);
-        file && Object.assign(file, { dom, domRect });
+      files.forEach(file => {
+        const domRect = rects.find(({ dom }) => file.basename === dom.dataset['path']);
+        if (domRect) {
+          const { dom } = domRect;
+          Object.assign(file, { dom, domRect });
+        } else {
+          // 如果 domRect 不存在，则说明可能处于搜索或者分页中
+          // 需要清除对应的 domRect，避免未出现在页面中却被 ReangeSelector 选中
+          Object.assign(file, { dom: null, domRect: null })
+        }
       });
     }
   },
@@ -58,7 +64,7 @@ export default new Vuex.Store({
      * @param {Store} param0 Vuex store
      * @param {String} dir 获取当前路径下的文件列表
      */
-    async fetchFiles({ commit, dispatch }, dir) {
+    async fetchFiles({ commit }, dir) {
       let files;
       try {
         files = (await request("/api/files", { dir })) || [];
@@ -169,6 +175,7 @@ getters: {
       });
       return filterd;
     },
-      selectedFiles: (state, { filteredFiles }) => filteredFiles.filter(file => file.selected)
+      selectedFiles: (state, { filteredFiles }) => filteredFiles.filter(file => file.selected),
+        isBatch: (state, { selectedFiles }) => selectedFiles.length > 1
 }
 });

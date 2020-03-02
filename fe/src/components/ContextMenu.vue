@@ -22,7 +22,11 @@
 
 <script>
 import path from "path";
-import { download as doDownload, copyTextToClipBoard } from "@utils";
+import {
+  download as doDownload,
+  copyTextToClipBoard,
+  getPointerOn
+} from "@utils";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Dropdown, Menu } from "ant-design-vue";
 import Rect from "@classes/Rect";
@@ -44,12 +48,9 @@ export default {
   computed: {
     ...mapState(["config", "boundingClientRects"]),
     ...mapActions(["setSelecteFiles"]),
-    ...mapGetters(["selectedFiles", "filteredFiles"]),
+    ...mapGetters(["selectedFiles", "filteredFiles", "isBatch"]),
     firstSelectedFile() {
       return this.selectedFiles[0] || {};
-    },
-    isBatch() {
-      return this.selectedFiles.length > 1;
     },
     isShowUpload() {
       const { firstSelectedFile: file, isBatch, config } = this;
@@ -132,11 +133,9 @@ export default {
      *   - 如果不是，则不显示右键菜单
      */
     onContextMenu(evt) {
-      const pointerPos = new Point(evt.pageX, evt.pageY);
-      const { filteredFiles, files, isBatch } = this;
-      const pointerOn = filteredFiles.find(
-        ({ domRect }, index) => domRect && domRect.isPointIn(pointerPos)
-      );
+      const { filteredFiles, isBatch } = this;
+      const pointer = new Point(evt.pageX, evt.pageY);
+      const pointerOn = getPointerOn(pointer, filteredFiles);
       if (pointerOn) {
         !isBatch && this.setSelectFiles([true, [pointerOn]]);
         this.openContextMenu();

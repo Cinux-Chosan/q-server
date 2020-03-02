@@ -63,7 +63,7 @@ export default {
         propertyName /** transitionend */
       } = evt;
       const cssTriggerProperty = animationName || propertyName;
-      isDev && debug.event("reflow", cssTriggerProperty);
+      isDev && debug.event("repaint", cssTriggerProperty);
       // 这些 animation 不需要重新计算 BoundingClientRect
       const excludeAnimaiton = ["color", "opacity"];
       if (!excludeAnimaiton.find(exc => cssTriggerProperty.includes(exc))) {
