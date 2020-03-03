@@ -13,6 +13,7 @@ Vue.config.productionTip = false;
 message.config({
   top: "80px"
 });
+
 Vue.prototype.$message = message;
 Vue.use(autoFocus);
 

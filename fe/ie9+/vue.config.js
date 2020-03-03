@@ -4,7 +4,7 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const { resolve } = path;
 
 module.exports = {
-  outputDir: path.join(__dirname, "../server/www"),
+  outputDir: path.join(__dirname, "../../server/www"),
   productionSourceMap: false,
   devServer: {
     proxy: {
