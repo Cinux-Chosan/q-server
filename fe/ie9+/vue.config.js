@@ -63,11 +63,11 @@ module.exports = {
       ])
       .end();
 
-    // config
-    //   .externals({
-    //     Vue: "Vue"
-    //   })
-    //   .end();
+    config
+      .externals({
+        vue: "Vue"
+      })
+      .end();
 
     // ant-design-vue 使用了未转换成 es 5 的 ismobile 包，导致 ie <= 10  无法识别 const 等 es6 属性
     config.module
