@@ -71,16 +71,13 @@ export default {
       const { $refs, $nextTick, movingEvt: evt } = this;
       if (val) {
         $nextTick(() => {
-          const { fileInfoContainer} = $refs;
+          const { fileInfoContainer } = $refs;
           fileInfoContainer && alignPoint(fileInfoContainer, evt, alignConfig);
         });
       }
     },
     pointerOn(newVal, oldVal) {
       const { timeoutId, delay } = this;
-      if (newVal !== oldVal) {
-        this.isShow = false;
-      }
       if (newVal) {
         if (!timeoutId) {
           this.timeoutId = setTimeout(() => {
@@ -92,6 +89,9 @@ export default {
         this.isShow = false;
         this.timeoutId = null;
         this.movingEvt = null;
+      }
+      if (newVal !== oldVal) {
+        this.isShow = false;
       }
     }
   },
