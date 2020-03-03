@@ -13,9 +13,6 @@ const { error, log } = require("./libs/debug");
 
 const app = new Koa();
 
-// 缓存 index.html 内容
-let indexFileContent = "";
-
 app.keys = ["some secret hurr"];
 
 app
@@ -41,10 +38,7 @@ app
   .use(koaStatic(args.dir, { index: false, hidden: !!args.hidden }))
   .use(koaStatic(path.join(__dirname, "www"), { index: false }))
   .use(ctx => {
-    // 其他路由全返回页面
-    return (ctx.body = isDev
-      ? getIndexFileCache()
-      : indexFileContent || (indexFileContent = getIndexFileCache()));
+    return ctx.body = getIndexFileCache(ctx)
   })
   .on("error", err => {
     error(err.message);

@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const cheerio = require("cheerio");
 const args = require("./args");
+const UAParser = require('ua-parser-js');
 const { http } = require("./debug");
 
 /**
@@ -30,14 +31,33 @@ const isHidden = (root, filePath) => {
 const isAccessible = (root, absPath) => !path.relative(root, absPath).startsWith("..");
 
 /**
- * 根据命令行参数修改 index.html#title
+ * 读取对应 index 并根据命令行参数修改 index.html#title 并缓存
  */
-function getIndexFileCache() {
-  const content = fs.readFileSync(path.join(__dirname, "../www/index.html"), { encoding: "utf8" });
-  const $ = cheerio.load(content);
-  $("title").text(args.title);
-  return $.html();
-}
+const getIndexFileCache = (() => {
+  // 其他路由全返回页面
+  let ie9;
+  let ie8;
+  let mobile;
+  const loadHTML = (indexPath) => {
+    const content = fs.readFileSync(path.join(__dirname, indexPath), { encoding: "utf8" });
+    const $ = cheerio.load(content);
+    $("title").text(args.title);
+    return $.html();
+  }
+  return (ctx) => {
+    const { browser, device } = UAParser(ctx.header['user-agent']);
+    if (device.type === 'mobile') {
+      // 使用 mobile
+      return (!isDev && mobile) || (mobile = loadHTML('../www/mobile/index.html'))
+    } else if (browser.name === 'IE' && browser.version <= 8) {
+      // 使用 IE8- 
+      return (!isDev && ie8) || (ie8 = loadHTML('../www/ie8-/index.html'))
+    } else {
+      // 其他情况都使用 IE9+
+      return (!isDev && ie9) || (ie9 = loadHTML('../www/ie9+/index.html'))
+    }
+  }
+})()
 
 // 对请求路径做通用越权校验，如有特殊校验需求需要在接口中校验
 const checkAccessble = (ctx, next) => {
