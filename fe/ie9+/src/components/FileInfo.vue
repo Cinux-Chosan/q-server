@@ -16,11 +16,10 @@
 <script>
 import bytes from "bytes";
 import { alignPoint } from "dom-align";
-import { Popover, Card } from "ant-design-vue";
+import { Card } from "ant-design-vue";
 import { mapGetters } from "vuex";
 import debug from "@utils/debug";
 import Point from "@classes/Point";
-import Rect from "@classes/Rect";
 import { getPointerOn, formatTime } from "@utils";
 
 const alignConfig = {
@@ -30,12 +29,11 @@ const alignConfig = {
     adjustY: true
   },
   offset: [10, 20],
-  useCssTransform: true
+  useCssLeft: true
 };
 
 export default {
   components: {
-    Popover,
     Card
   },
   props: {
@@ -78,20 +76,18 @@ export default {
     },
     pointerOn(newVal, oldVal) {
       const { timeoutId, delay } = this;
-      if (newVal) {
-        if (!timeoutId) {
-          this.timeoutId = setTimeout(() => {
-            this.isShow = true;
-          }, delay);
-        }
-      } else {
+      if (newVal !== oldVal) {
         clearTimeout(timeoutId);
         this.isShow = false;
         this.timeoutId = null;
-        this.movingEvt = null;
+        isDev && debug.log("pointerOn changed, newVal !== oldVal");
       }
-      if (newVal !== oldVal) {
-        this.isShow = false;
+      if (newVal && !timeoutId) {
+        this.timeoutId = setTimeout(() => {
+          this.isShow = true;
+          isDev && debug.log("set isShow = true");
+        }, delay);
+        isDev && debug.log("pointerOn changed, setTimeout");
       }
     }
   },

@@ -25,5 +25,5 @@ module.exports = {
 };
 
 function onOrOff() {
-  return process.env.NODE_ENV === "production" ? "error" : "off";
+  return process.env.NODE_ENV !== "production" ? "error" : "off";
 }

@@ -2,8 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const cheerio = require("cheerio");
 const args = require("./args");
-const UAParser = require('ua-parser-js');
-const { http } = require("./debug");
+const UAParser = require("ua-parser-js");
+const { http, log } = require("./debug");
 
 /**
  * 是否是 dev 环境
@@ -38,26 +38,28 @@ const getIndexFileCache = (() => {
   let ie9;
   let ie8;
   let mobile;
-  const loadHTML = (indexPath) => {
+  const loadHTML = indexPath => {
     const content = fs.readFileSync(path.join(__dirname, indexPath), { encoding: "utf8" });
     const $ = cheerio.load(content);
     $("title").text(args.title);
     return $.html();
-  }
-  return (ctx) => {
-    const { browser, device } = UAParser(ctx.header['user-agent']);
-    if (device.type === 'mobile') {
+  };
+  return ctx => {
+    const ua = ctx.header["user-agent"]
+    const { browser, device } = UAParser(ua);
+    isDev && log('broswer and device info:', ua, browser, device);
+    if (device.type === "mobile") {
       // 使用 mobile
-      return (!isDev && mobile) || (mobile = loadHTML('../www/mobile/index.html'))
-    } else if (browser.name === 'IE' && browser.version <= 8) {
-      // 使用 IE8- 
-      return (!isDev && ie8) || (ie8 = loadHTML('../www/ie8-/index.html'))
+      return (!isDev && mobile) || (mobile = loadHTML("../www/mobile/index.html"));
+    } else if (browser.name === "IE" && browser.version <= 8) {
+      // 使用 IE8-
+      return (!isDev && ie8) || (ie8 = loadHTML("../www/ie8-/index.html"));
     } else {
       // 其他情况都使用 IE9+
-      return (!isDev && ie9) || (ie9 = loadHTML('../www/ie9+/index.html'))
+      return (!isDev && ie9) || (ie9 = loadHTML("../www/ie9+/index.html"));
     }
-  }
-})()
+  };
+})();
 
 // 对请求路径做通用越权校验，如有特殊校验需求需要在接口中校验
 const checkAccessble = (ctx, next) => {
