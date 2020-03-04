@@ -1,11 +1,11 @@
 const path = require("path");
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { resolve } = path;
 
 module.exports = {
-  outputDir: path.join(__dirname, "../../server/www/ie9+"),
-  publicPath: "/ie9+",
+  outputDir: path.join(__dirname, "../../server/www"),
+  publicPath: "/",
   productionSourceMap: false,
   devServer: {
     proxy: {
@@ -30,17 +30,15 @@ module.exports = {
     }
   },
   chainWebpack(config) {
-    config
-      // 清除 vue cli 自带的 app 入口
-      .entryPoints
-      .delete('app')
-      .end()
+    config.entryPoints // 清除 vue cli 自带的 app 入口
+      .delete("app")
+      .end();
     // 添加 ie9+ 入口
     config
-      .entry('ie9+')
+      .entry("ie9+")
       .add("@babel/polyfill")
-      .add('./src/ie9+/main.js')
-      .end()
+      .add("./src/ie9+/main.js")
+      .end();
     // IE 9 classList polyfill
     // .prepend("classlist-polyfill")
     config
@@ -48,28 +46,37 @@ module.exports = {
       .entry("mobile")
       .add("@babel/polyfill")
       .add("./src/mobile/main.js")
-      .end()
+      .end();
 
     config
-      .plugin('html')
-      .tap((argsArray) => {
+      .plugin("html")
+      .tap(argsArray => {
         // 修改 ie9+ 入口
-        const [defaultArg] = argsArray
+        const [defaultArg] = argsArray;
         const ie9Plus = {
           ...defaultArg,
-          template: path.join(__dirname, 'public/ie9+.html'),
-          chunks: 'ie9+'
-        }
+          template: path.join(__dirname, "public/ie9+.html"),
+          chunks: "ie9+",
+          excludeChunks: ["mobile"],
+          filename: "ie9+.html"
+        };
+
         // 添加 mobile 入口
         const mobile = {
           ...defaultArg,
-          template: path.join(__dirname, 'public/mobile.html'),
-          chunks: 'mobile'
+          template: path.join(__dirname, "public/mobile.html"),
+          chunks: "mobile",
+          excludeChunks: ["ie9+"],
+          filename: "mobile.html"
         };
+        config
+          .plugin("mobileHtml")
+          .use(HtmlWebpackPlugin, [mobile])
+          .end();
+
         return [ie9Plus, mobile];
       })
-      .end()
-
+      .end();
 
     config.module
       .rule("svg")

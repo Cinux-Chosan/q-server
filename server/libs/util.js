@@ -50,13 +50,13 @@ const getIndexFileCache = (() => {
     isDev && log('broswer and device info:', ua, browser, device);
     if (device.type === "mobile") {
       // 使用 mobile
-      return (!isDev && mobile) || (mobile = loadHTML("../www/mobile/index.html"));
+      return (!isDev && mobile) || (mobile = loadHTML("../www/mobile.html"));
     } else if (browser.name === "IE" && browser.version <= 8) {
       // 使用 IE8-
-      return (!isDev && ie8) || (ie8 = loadHTML("../www/ie8-/index.html"));
+      return (!isDev && ie8) || (ie8 = loadHTML("../www/ie8-.html"));
     } else {
       // 其他情况都使用 IE9+
-      return (!isDev && ie9) || (ie9 = loadHTML("../www/ie9+/index.html"));
+      return (!isDev && ie9) || (ie9 = loadHTML("../www/ie9+.html"));
     }
   };
 })();
