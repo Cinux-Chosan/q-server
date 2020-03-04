@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { resolve } = path;
 
 module.exports = {
@@ -17,34 +18,68 @@ module.exports = {
   configureWebpack: {
     resolve: {
       alias: {
-        "@utils": path.join(__dirname, "src/utils/"),
-        "@req": path.join(__dirname, "src/utils/request"),
-        "@comps": path.join(__dirname, "src/components"),
-        "@directives": path.join(__dirname, "src/directives"),
-        "@classes": path.join(__dirname, "src/classes"),
-        "@icons": path.join(__dirname, "src/Icons"),
-        "@router": path.join(__dirname, "src/router"),
-        "@store": path.join(__dirname, "src/store")
+        "@utils": path.join(__dirname, "src/ie9+/utils/"),
+        "@req": path.join(__dirname, "src/ie9+/utils/request"),
+        "@comps": path.join(__dirname, "src/ie9+/components"),
+        "@directives": path.join(__dirname, "src/ie9+/directives"),
+        "@classes": path.join(__dirname, "src/ie9+/classes"),
+        "@icons": path.join(__dirname, "src/ie9+/Icons"),
+        "@router": path.join(__dirname, "src/ie9+/router"),
+        "@store": path.join(__dirname, "src/ie9+/store")
       }
     }
   },
   chainWebpack(config) {
     config
-      .entry("app")
-      // IE 9 classList polyfill
-      // .prepend("classlist-polyfill")
-      .prepend("@babel/polyfill")
-      .end();
+      // 清除 vue cli 自带的 app 入口
+      .entryPoints
+      .delete('app')
+      .end()
+    // 添加 ie9+ 入口
+    config
+      .entry('ie9+')
+      .add("@babel/polyfill")
+      .add('./src/ie9+/main.js')
+      .end()
+    // IE 9 classList polyfill
+    // .prepend("classlist-polyfill")
+    config
+      // 添加 mobile 入口
+      .entry("mobile")
+      .add("@babel/polyfill")
+      .add("./src/mobile/main.js")
+      .end()
+
+    config
+      .plugin('html')
+      .tap((argsArray) => {
+        // 修改 ie9+ 入口
+        const [defaultArg] = argsArray
+        const ie9Plus = {
+          ...defaultArg,
+          template: path.join(__dirname, 'public/ie9+.html'),
+          chunks: 'ie9+'
+        }
+        // 添加 mobile 入口
+        const mobile = {
+          ...defaultArg,
+          template: path.join(__dirname, 'public/mobile.html'),
+          chunks: 'mobile'
+        };
+        return [ie9Plus, mobile];
+      })
+      .end()
+
 
     config.module
       .rule("svg")
-      .exclude.add(resolve("src/Icons"))
+      .exclude.add(resolve("src/ie9+/Icons"))
       .end();
 
     config.module
       .rule("icons")
       .test(/\.svg$/)
-      .include.add(resolve("src/Icons"))
+      .include.add(resolve("src/ie9+/Icons"))
       .end()
       .use("svg-sprite-loader")
       .loader("svg-sprite-loader")
@@ -63,11 +98,11 @@ module.exports = {
       ])
       .end();
 
-    config
-      .externals({
-        vue: "Vue"
-      })
-      .end();
+    // config
+    //   .externals({
+    //     vue: "Vue"
+    //   })
+    //   .end();
 
     // ant-design-vue 使用了未转换成 es 5 的 ismobile 包，导致 ie <= 10  无法识别 const 等 es6 属性
     config.module
