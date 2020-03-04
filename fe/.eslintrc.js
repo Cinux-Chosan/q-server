@@ -17,6 +17,7 @@ module.exports = {
     "vue/no-unused-components": onOrOff(),
     "no-unused-vars": onOrOff(),
     "no-constant-condition": onOrOff(),
+    // polyfill
     "no-prototype-builtins": "off"
   },
   globals: {

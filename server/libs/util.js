@@ -13,7 +13,6 @@ const isDev = process.env.NODE_ENV === "dev";
 /**
  * 检查 root 之后的路径是否是隐藏文件或目录
  */
-
 const isHidden = (root, filePath) => {
   filePath = filePath.substr(root.length).split(path.sep);
   for (let i = 0; i < filePath.length; i++) {

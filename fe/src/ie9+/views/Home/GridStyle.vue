@@ -24,28 +24,16 @@
         @click.stop="$emit('setSelect', file, index, $event)"
         @dblclick="$emit('onDirChange', file)"
       >
-        <!-- <Popover
-          title
-          placement="topLeft"
-          arrowPointAtCenter
-          :mouseEnterDelay="1"
-          :getPopupContainer="getPopupContainer"
-          :key="file.basename"
+        <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
+        <a
+          :href="getHref(file, $router)"
+          @click.prevent
+          draggable="false"
+          class="block noTransition fileLink"
         >
-          <template #content>
-            <div class="popoverContent" :key="file.basename">
-              <p>文件名：{{file.basename}}</p>
-              <p v-if="!file.isDir">文件大小：{{file.stats.size | bytes}}</p>
-              <p>创建时间：{{file.stats.birthtime | formatTime}}</p>
-              <p>最后修改于：{{file.stats.mtime | formatTime}}</p>
-            </div>
-          </template> -->
-          <!-- 提供鼠标右键复制地址、新窗口打开等浏览器自带功能 -->
-          <a :href="file | getHref" @click.prevent draggable="false" class="block noTransition fileLink">
-            <FileIcon :file="file" class="iconItem" />
-            <p class="fileName ellipsis">{{file.basename}}</p>
-          </a>
-        <!-- </Popover> -->
+          <FileIcon :file="file" class="iconItem" />
+          <p class="fileName ellipsis">{{file.basename}}</p>
+        </a>
       </li>
     </transition-group>
     <Empty description="空空如也~" v-if="isEmpty" />
@@ -55,7 +43,7 @@
 
 <script>
 import bytes from "bytes";
-import FileIcon from "@comps/FileIcon";
+import FileIcon from "@9/components/FileIcon";
 import { formatTime, fileType, getHref } from "@utils";
 import { mapActions, mapGetters } from "vuex";
 import { Empty, Popover } from "ant-design-vue";
@@ -76,6 +64,7 @@ export default {
   },
   computed: mapGetters(["filteredFiles"]),
   methods: {
+    getHref,
     ...mapActions(["getBoundingClientRect"]),
     getPopupContainer() {
       return document.getElementById("popContainer");
@@ -84,8 +73,7 @@ export default {
   filters: {
     formatTime,
     fileType,
-    bytes,
-    getHref
+    bytes
   }
 };
 </script>

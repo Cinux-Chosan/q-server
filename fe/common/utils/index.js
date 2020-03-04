@@ -1,7 +1,6 @@
 import path from "path";
 import request from "@req";
 import moment from "moment";
-import router from "@router";
 import debug from "@utils/debug";
 import iconMap from "@icons/map";
 import { message } from "ant-design-vue";
@@ -107,7 +106,7 @@ export const fileType = file => {
   return iconMap[file.fileExt] || "file";
 };
 
-export const getHref = file => {
+export const getHref = (file, router) => {
   const route = router.currentRoute;
   if (file.isDir) {
     const { query, ...rest } = route;

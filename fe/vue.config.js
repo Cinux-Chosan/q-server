@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { resolve } = path;
 
 module.exports = {
-  outputDir: path.join(__dirname, "../../server/www"),
+  outputDir: path.join(__dirname, "../server/www"),
   publicPath: "/",
   productionSourceMap: false,
   devServer: {
@@ -18,19 +18,22 @@ module.exports = {
   configureWebpack: {
     resolve: {
       alias: {
-        "@utils": path.join(__dirname, "src/ie9+/utils/"),
-        "@req": path.join(__dirname, "src/ie9+/utils/request"),
-        "@comps": path.join(__dirname, "src/ie9+/components"),
-        "@directives": path.join(__dirname, "src/ie9+/directives"),
-        "@classes": path.join(__dirname, "src/ie9+/classes"),
-        "@icons": path.join(__dirname, "src/ie9+/Icons"),
-        "@router": path.join(__dirname, "src/ie9+/router"),
-        "@store": path.join(__dirname, "src/ie9+/store")
+        "@8": path.join(__dirname, "src/ie8-"),
+        "@9": path.join(__dirname, "src/ie9+"),
+        "@m": path.join(__dirname, "src/mobile"),
+        // 多终端通用
+        "@common": path.join(__dirname, "common"),
+        "@utils": path.join(__dirname, "common/utils"),
+        "@icons": path.join(__dirname, "common/Icons"),
+        "@req": path.join(__dirname, "common/utils/request"),
+        "@classes": path.join(__dirname, "common/classes"),
+        "@directives": path.join(__dirname, "common/directives"),
       }
     }
   },
   chainWebpack(config) {
-    config.entryPoints // 清除 vue cli 自带的 app 入口
+    // 清除 vue cli 自带的 app 入口
+    config.entryPoints
       .delete("app")
       .end();
     // 添加 ie9+ 入口
@@ -80,13 +83,13 @@ module.exports = {
 
     config.module
       .rule("svg")
-      .exclude.add(resolve("src/ie9+/Icons"))
+      .exclude.add(resolve("common/Icons"))
       .end();
 
     config.module
       .rule("icons")
       .test(/\.svg$/)
-      .include.add(resolve("src/ie9+/Icons"))
+      .include.add(resolve("common/Icons"))
       .end()
       .use("svg-sprite-loader")
       .loader("svg-sprite-loader")

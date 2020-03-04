@@ -1,8 +1,8 @@
 import '@utils/polyfill';
 import Vue from "vue";
 import App from "./App.vue";
-import router from "@router";
-import store from "@store";
+import router from "./router";
+import store from "./store";
 import { message } from "ant-design-vue";
 import autoFocus from "@directives/autofocus";
 import "./styles";

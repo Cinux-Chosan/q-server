@@ -1,8 +1,8 @@
 <script>
-import FileIcon from "@comps/FileIcon";
+import FileIcon from "@9/components/FileIcon";
 import { Table, Empty } from "ant-design-vue";
 import { mapGetters, mapState } from "vuex";
-import { ENUM_DISPLAY_SIZE } from "@utils/enums";
+import { ENUM_DISPLAY_SIZE } from "@9/utils/enums";
 import { formatTime, getHref, noop } from "@utils/";
 import bytes from "bytes";
 
@@ -77,13 +77,13 @@ export default {
 };
 
 function createColumn(h) {
-  const { $style } = this;
+  const { $style, $router } = this;
   const columns = [
     {
       title: "文件名",
       dataIndex: "basename",
       customRender: (text, file) => {
-        const href = getHref(file);
+        const href = getHref(file, $router);
         return (
           <a href={href} class="block noTransition fileLink" draggable="false" vOn:click_prevent={noop}>
             <FileIcon file={file} class={$style.icon} />

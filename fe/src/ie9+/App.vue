@@ -25,9 +25,9 @@
 <script>
 import request from "@req";
 import debug from "@utils/debug";
-import Search from "@comps/Search";
-import Breadcrumb from "@comps/Breadcrumb";
-import RangeSelector from "@comps/RangeSelector";
+import Search from "@9/components/Search";
+import Breadcrumb from "@9/components/Breadcrumb";
+import RangeSelector from "@9/components/RangeSelector";
 import { BackTop, Divider } from "ant-design-vue";
 import { mapActions, mapMutations } from "vuex";
 

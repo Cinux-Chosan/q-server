@@ -30,11 +30,11 @@
 <script>
 import path from "path";
 import debug from "@utils/debug";
-import ContextMenu from "@comps/ContextMenu";
-import FileInfo from "@comps/FileInfo";
+import ContextMenu from "@9/components/ContextMenu";
+import FileInfo from "@9/components/FileInfo";
 import { isNull } from "@utils";
 import { Popover, Spin } from "ant-design-vue";
-import { ENUM_DISPLAY_TYPE } from "@utils/enums";
+import { ENUM_DISPLAY_TYPE } from "@9/utils/enums";
 import { mapActions, mapGetters, mapState } from "vuex";
 import GridStyle from "./GridStyle";
 import ListStyle from "./ListStyle";

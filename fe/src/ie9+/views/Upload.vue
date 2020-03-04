@@ -25,7 +25,7 @@
 </template>
 <script>
 import debug from "@utils/debug";
-import Breadcrumb from "@comps/Breadcrumb";
+import Breadcrumb from "@9/components/Breadcrumb";
 import { mapState } from 'vuex';
 import { Upload, Icon } from "ant-design-vue";
 

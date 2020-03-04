@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import Settings from '@comps/Settings'
+import Settings from '@9/components/Settings'
 import { Input } from "ant-design-vue";
 import { mapActions, mapState } from "vuex";
 const { Search: InputSearch } = Input;

@@ -72,7 +72,7 @@
   </span>
 </template>
 <script>
-import SvgIcon from "@comps/SvgIcon";
+import SvgIcon from "@9/components/SvgIcon";
 import {
   Drawer,
   Form,
@@ -86,7 +86,7 @@ import {
   ENUM_DISPLAY_TYPE,
   ENUM_DISPLAY_SIZE,
   ENUM_DISPLAY_TYPE_LIST_IS_PAGINATION
-} from "@utils/enums";
+} from "@9/utils/enums";
 import { mapState, mapMutations, mapActions } from "vuex";
 
 const { Item: FormItem } = Form;

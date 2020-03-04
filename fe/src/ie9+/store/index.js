@@ -5,9 +5,9 @@ import Rect from "@classes/Rect";
 import debug from "@utils/debug";
 import syncState, { loadStateFromLocalStorage } from "./plugins/syncState";
 import watcher from "./plugins/watchers";
-import { ENUM_SORT_TYPE, ENUM_SORT_ORDER, ENUM_DISPLAY_TYPE, ENUM_DISPLAY_SIZE } from "@utils/enums";
+import { ENUM_SORT_TYPE, ENUM_SORT_ORDER, ENUM_DISPLAY_TYPE, ENUM_DISPLAY_SIZE } from "@9/utils/enums";
 import { debounce } from "@utils/decorators";
-import { setValue } from "../utils";
+import { setValue } from "@utils";
 
 const log = (...args) => isDev && debug.log(...args);
 
