@@ -27,15 +27,13 @@ module.exports = {
         "@icons": path.join(__dirname, "common/Icons"),
         "@req": path.join(__dirname, "common/utils/request"),
         "@classes": path.join(__dirname, "common/classes"),
-        "@directives": path.join(__dirname, "common/directives"),
+        "@directives": path.join(__dirname, "common/directives")
       }
     }
   },
   chainWebpack(config) {
     // 清除 vue cli 自带的 app 入口
-    config.entryPoints
-      .delete("app")
-      .end();
+    config.entryPoints.delete("app").end();
     // 添加 ie9+ 入口
     config
       .entry("ie9+")
@@ -119,6 +117,10 @@ module.exports = {
       .rule("fixBug")
       .test(/\.js$/)
       .include.add(resolve("node_modules/ismobilejs"))
+      .add(resolve("node_modules/framework7"))
+      .add(resolve("node_modules/dom7"))
+      .add(resolve("node_modules/template7"))
+      .add(resolve("node_modules/framework7-vue"))
       .add(resolve("node_modules/debug"))
       .end()
       .use("fixBug")
