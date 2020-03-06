@@ -11,6 +11,13 @@ export const isParentDir = file => file.path === "..";
 export const isNull = value => value === null;
 export const isUndefined = value => value === undefined;
 export const noop = () => { };
+
+/**
+ * 
+ * @param {Function} fn 返回 true 则停止等待，返回 false 则继续等待，直到超时
+ * @param {Number} timeout 超时时间，默认为 3000 ms，传入 -1 则禁用超时
+ * @param {Number}} interval 每次检查 fn 返回值的中间间隔时间，单位 ms
+ */
 export const wait = (fn, timeout = 3000, interval = 100) => {
   const infinity = timeout < 0;
   return new Promise((res, rej) => {

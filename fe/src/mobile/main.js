@@ -1,18 +1,32 @@
-import Vue from "vue";
-import Framework7 from "framework7";
-import Framework7Vue from "framework7-vue";
-// 引入 f7 样式，后期改为按需加载
-import "framework7/css/framework7.bundle.css"
-import App from "./App.vue";
-import "./registerServiceWorker";
-import router from "./router";
-import store from "./store";
+// Import Vue
+import Vue from 'vue';
 
-Vue.config.productionTip = false;
+// Import Framework7
+import Framework7 from 'framework7/framework7-lite.esm.bundle.js';
+
+// Import Framework7-Vue Plugin
+import Framework7Vue from 'framework7-vue/framework7-vue.esm.bundle.js';
+
+// Import Framework7 Styles
+import 'framework7/css/framework7.bundle.css';
+
+// Import Icons and App Custom Styles
+import './styles/icons.css';
+import './styles/app.less';
+
+// Import App Component
+import App from '@m/components/app.vue';
+
+// Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 
+// Init App
 new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount("#app");
+  el: '#app',
+  render: (h) => h(App),
+
+  // Register App Component
+  components: {
+    app: App
+  },
+});
