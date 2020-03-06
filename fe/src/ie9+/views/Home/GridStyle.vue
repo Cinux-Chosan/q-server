@@ -46,7 +46,7 @@ import bytes from "bytes";
 import FileIcon from "@9/components/FileIcon";
 import { formatTime, fileType, getHref } from "@utils";
 import { mapActions, mapGetters } from "vuex";
-import { Empty, Popover } from "ant-design-vue";
+import { Empty } from "ant-design-vue";
 
 export default {
   props: {
@@ -59,8 +59,7 @@ export default {
   },
   components: {
     FileIcon,
-    Empty,
-    Popover
+    Empty
   },
   computed: mapGetters(["filteredFiles"]),
   methods: {

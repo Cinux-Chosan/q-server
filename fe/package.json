@@ -36,6 +36,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^6.1.2",
+    "framework7": "^5.4.5",
     "framework7-vue": "^5.4.5",
     "html-webpack-plugin": "^3.2.0",
     "less": "^3.0.4",

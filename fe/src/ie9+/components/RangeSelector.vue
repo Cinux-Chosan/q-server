@@ -1,5 +1,5 @@
 <template>
-    <!-- v-autofocus="searchText" -->
+  <!-- v-autofocus="searchText" -->
   <div
     tabindex="0"
     class="rangeSelectorContainer"
@@ -21,7 +21,7 @@
 import Point from "@classes/Point";
 import Rect from "@classes/Rect";
 import debug from "@utils/debug";
-import { throttle, debounce } from "@utils/decorators";
+import { throttle /* , debounce */ } from "@utils/decorators";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { isOpkeyPressed } from "@utils";
 

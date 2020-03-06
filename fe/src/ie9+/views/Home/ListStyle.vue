@@ -56,7 +56,7 @@ export default {
       };
     }
   },
-  render(h) {
+  render() {
     const { listData, customRow, columns, settings } = this;
     const paginationOpt = settings.isPagination && {
       pageSize: settings.listPageSize
@@ -76,7 +76,7 @@ export default {
   }
 };
 
-function createColumn(h) {
+function createColumn() {
   const { $style, $router } = this;
   const columns = [
     {

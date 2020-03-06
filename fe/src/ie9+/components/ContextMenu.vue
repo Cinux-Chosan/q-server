@@ -29,7 +29,6 @@ import {
 } from "@utils";
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Dropdown, Menu } from "ant-design-vue";
-import Rect from "@classes/Rect";
 import Point from "@classes/Point";
 const { Item: MenuItem, Divider } = Menu;
 

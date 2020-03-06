@@ -11,7 +11,7 @@ module.exports = {
     }
   },
   rules: {
-    "no-console": onOrOff(),
+    "no-console": 'off',
     "no-debugger": onOrOff(),
     "no-dupe-keys": onOrOff(),
     "vue/no-unused-components": onOrOff(),
