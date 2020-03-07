@@ -1,4 +1,4 @@
-// import './eruda';
+import './eruda';
 
 // Import Vue
 import Vue from 'vue';
@@ -17,8 +17,9 @@ import './styles/icons.css';
 import './styles/app.less';
 
 // Import App Component
-import App from '@m/components/app.vue';
-
+import App from './app.vue';
+import store from '@9/store'
+import '@icons'
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 
@@ -27,7 +28,7 @@ Framework7.use(Framework7Vue);
 new Vue({
   el: '#app',
   render: (h) => h(App),
-
+  store,
   // Register App Component
   components: {
     app: App

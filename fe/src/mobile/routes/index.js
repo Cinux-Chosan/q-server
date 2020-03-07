@@ -13,6 +13,10 @@ import NotFoundPage from '@m/views/404.vue';
 var routes = [
   {
     path: '/',
+    component: () => import('../views/display/index.vue'),
+  },
+  {
+    path: '/home',
     component: HomePage,
   },
   {

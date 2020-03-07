@@ -43,7 +43,7 @@
 
 <script>
 import bytes from "bytes";
-import FileIcon from "@9/components/FileIcon";
+import FileIcon from "@common/components/FileIcon";
 import { formatTime, fileType, getHref } from "@utils";
 import { mapActions, mapGetters } from "vuex";
 import { Empty } from "ant-design-vue";

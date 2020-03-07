@@ -1,5 +1,5 @@
 <script>
-import FileIcon from "@9/components/FileIcon";
+import FileIcon from "@common/components/FileIcon";
 import { Table, Empty } from "ant-design-vue";
 import { mapGetters, mapState } from "vuex";
 import { ENUM_DISPLAY_SIZE } from "@9/utils/enums";

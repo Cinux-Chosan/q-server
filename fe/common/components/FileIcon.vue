@@ -4,7 +4,7 @@
 
 <script>
 import { fileType } from "@utils";
-import SvgIcon from "@9/components/SvgIcon";
+import SvgIcon from "@common/components/SvgIcon";
 export default {
   props: {
     file: {

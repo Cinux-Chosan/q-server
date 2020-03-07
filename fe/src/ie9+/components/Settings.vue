@@ -72,7 +72,7 @@
   </span>
 </template>
 <script>
-import SvgIcon from "@9/components/SvgIcon";
+import SvgIcon from "@common/components/SvgIcon";
 import {
   Drawer,
   Form,
