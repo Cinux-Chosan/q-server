@@ -6,18 +6,25 @@
       :title="file.basename"
       :data-path="file.basename"
       @contextmenu="onContextMenu"
-    ><FileIcon :file="file" slot="media" class="listIcon" /></f7-list-item>
+      @click="$emit('onDirChange', file)"
+    >
+      <FileIcon :file="file" slot="media" class="listIcon" />
+    </f7-list-item>
   </f7-list>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import FileIcon from "@common/components/FileIcon.vue";
 
 export default {
   components: { FileIcon },
   data() {
     return {};
+  },
+
+  onClick() {
+
   },
 
   computed: {
