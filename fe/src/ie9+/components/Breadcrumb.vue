@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import path from "path";
+import { creatBreadCrumbs } from "@common/utils";
 import { Breadcrumb } from "ant-design-vue";
 
 const { Item: BreadcrumbItem } = Breadcrumb;
@@ -18,21 +18,8 @@ export default {
   },
   computed: {
     breadcrumbs() {
-      const paths = this.$route.query.dir || "/";
-      let parent = "/";
-      const rootObj = {
-        name: "~",
-        path: "/"
-      };
-      const breadcrumbs = paths.split("/").filter(item => item);
-      const breadcrumbObjs = breadcrumbs.map(item => {
-        parent = path.join(parent, item);
-        return {
-          name: item,
-          path: parent
-        };
-      });
-      return [rootObj, ...breadcrumbObjs];
+      const dir = this.$route.query.dir || "/";
+      return creatBreadCrumbs(dir)
     }
   }
 };

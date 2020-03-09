@@ -10,10 +10,10 @@ export const isOpkeyPressed = evt => opKeys.find(key => evt[key]);
 export const isParentDir = file => file.path === "..";
 export const isNull = value => value === null;
 export const isUndefined = value => value === undefined;
-export const noop = () => { };
+export const noop = () => {};
 
 /**
- * 
+ *
  * @param {Function} fn 返回 true 则停止等待，返回 false 则继续等待，直到超时
  * @param {Number} timeout 超时时间，默认为 3000 ms，传入 -1 则禁用超时
  * @param {Number}} interval 每次检查 fn 返回值的中间间隔时间，单位 ms
@@ -65,7 +65,9 @@ export const download = async (downloadList, path) => {
     return { path, fullPath, isDir, basename };
   });
   const downloadId = await request("/api/download", { downloadList, path });
-  return createDownloadIframe(`/api/download?isDownload=&downloadId=${downloadId}`);
+  return createDownloadIframe(
+    `/api/download?isDownload=&downloadId=${downloadId}`
+  );
 };
 
 export const copyTextToClipBoard = text => {
@@ -99,7 +101,9 @@ export const setValue = (obj, key, value) => {
   for (let i = 0; i < lastButOneIndex; i++) {
     obj = obj[segments[i]];
     if (!obj && typeof obj !== "object")
-      throw new Error(`setValue 错误，obj.${segments.slice(0, i + 1).join(".")} 不存在`);
+      throw new Error(
+        `setValue 错误，obj.${segments.slice(0, i + 1).join(".")} 不存在`
+      );
   }
   obj[segments[lastButOneIndex]] = value;
 };
@@ -133,4 +137,26 @@ export const getHref = (file, router) => {
  * @param {Point} point 点
  * @param {Array} fileList 文件列表
  */
-export const getPointerOn = (point, fileList) => fileList.find(({ domRect }) => domRect && domRect.isPointIn(point))
+export const getPointerOn = (point, fileList) =>
+  fileList.find(({ domRect }) => domRect && domRect.isPointIn(point));
+
+/**
+ * 根据当前路径创建导航用面包屑
+ * @param {String}} dir 当前目录路径，即 query.dir 参数
+ */
+export const creatBreadCrumbs = (dir = "/") => {
+  let parent = "/";
+  const rootObj = {
+    name: "~",
+    path: "/"
+  };
+  const breadcrumbs = dir.split("/").filter(item => item);
+  const breadcrumbObjs = breadcrumbs.map(item => {
+    parent = path.join(parent, item);
+    return {
+      name: item,
+      path: parent
+    };
+  });
+  return [rootObj, ...breadcrumbObjs];
+};
