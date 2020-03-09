@@ -15,6 +15,7 @@ var routes = [
     path: '/',
     name: 'fileList',
     component: () => import('../views/display/index.vue'),
+    keepAlive: true
   },
   {
     path: '/home',
