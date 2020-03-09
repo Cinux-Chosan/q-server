@@ -17,28 +17,29 @@ export default {
     ListView,
     BreadCrumb
   },
-  created() {
-    this.fetchFiles("/");
+  mounted() {
+    this.fetchFiles(this.$f7route.query.dir || "/");
   },
   methods: {
     ...mapActions(["fetchFiles"]),
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
      */
-    onDirChange(file) {
+    async onDirChange(file) {
       const { path: filePath, isDir } = file;
-      debugger
       const parent = this.$f7route.query.dir || "/";
       const dir = path.join(parent, filePath);
       if (parent !== dir) {
         if (isDir) {
+          await this.fetchFiles(this.$f7route.query.dir || "/");
+          debugger
           this.$f7router.navigate({
+            name: "fileList",
             query: { dir }
           });
         } else {
           window.open(dir);
         }
-        this.reset();
       }
     }
   }

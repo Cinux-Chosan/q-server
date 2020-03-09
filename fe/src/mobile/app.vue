@@ -116,8 +116,11 @@ export default {
       f7params: {
         name: "@chosan/server", // App name
         theme: "auto", // Automatic theme detection
-        touch:{
-          disableContextMenu: false // 是否开启上下文联动         
+        touch: {
+          disableContextMenu: false // 是否开启上下文联动
+        },
+        view: {
+          pushState: true
         },
         // App root data
         data: function() {
