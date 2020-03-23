@@ -20,6 +20,11 @@ export default {
   mounted() {
     this.fetchFiles(this.$f7route.query.dir || "/");
   },
+  watch: {
+    "$f7route.query.dir"() {
+      this.fetchFiles(this.$f7route.query.dir || "/");
+    }
+  },
   methods: {
     ...mapActions(["fetchFiles"]),
     /**
@@ -31,8 +36,7 @@ export default {
       const dir = path.join(parent, filePath);
       if (parent !== dir) {
         if (isDir) {
-          await this.fetchFiles(this.$f7route.query.dir || "/");
-          debugger
+          console.log("this.$f7route.query.dir", this.$f7route.query.dir);
           this.$f7router.navigate({
             name: "fileList",
             query: { dir }

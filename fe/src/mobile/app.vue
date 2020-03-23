@@ -1,24 +1,24 @@
 <template>
   <f7-app :params="f7params">
     <!-- Left panel with cover effect-->
-    <f7-panel left cover theme-dark>
+    <!-- <f7-panel left cover theme-dark>
       <f7-view>
         <f7-page>
           <f7-navbar title="Left Panel"></f7-navbar>
           <f7-block>Left panel content goes here</f7-block>
         </f7-page>
       </f7-view>
-    </f7-panel>
+    </f7-panel> -->
 
     <!-- Right panel with reveal effect-->
-    <f7-panel right reveal theme-dark>
+    <!-- <f7-panel right reveal theme-dark>
       <f7-view>
         <f7-page>
           <f7-navbar title="Right Panel"></f7-navbar>
           <f7-block>Right panel content goes here</f7-block>
         </f7-page>
       </f7-view>
-    </f7-panel>
+    </f7-panel> -->
 
     <!-- Views/Tabs container -->
     <f7-views tabs class="safe-areas">
@@ -59,7 +59,7 @@
     </f7-views>
 
     <!-- Popup -->
-    <f7-popup id="my-popup">
+    <!-- <f7-popup id="my-popup">
       <f7-view>
         <f7-page>
           <f7-navbar title="Popup">
@@ -103,7 +103,7 @@
           </f7-list>
         </f7-page>
       </f7-view>
-    </f7-login-screen>
+    </f7-login-screen> -->
   </f7-app>
 </template>
 <script>
@@ -117,7 +117,8 @@ export default {
         name: "@chosan/server", // App name
         theme: "auto", // Automatic theme detection
         touch: {
-          disableContextMenu: false // 是否开启上下文联动
+          // disableContextMenu: false, // 是否开启上下文联动
+          tapHold: true
         },
         view: {
           pushState: true
