@@ -32,7 +32,6 @@ export default {
       if (parent !== dir) {
         if (isDir) {
           await this.fetchFiles(this.$f7route.query.dir || "/");
-          debugger
           this.$f7router.navigate({
             name: "fileList",
             query: { dir }
