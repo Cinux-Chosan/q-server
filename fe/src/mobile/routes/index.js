@@ -1,105 +1,49 @@
+import Upload from "../views/upload/index.vue";
+import Settings from "../views/settings/index.vue";
+import FileList from "../views/display/index.vue";
+import NotFound from "../views/404.vue";
 
-import HomePage from '@m/views/home.vue';
-import AboutPage from '@m/views/about.vue';
-import FormPage from '@m/views/form.vue';
-import CatalogPage from '@m/views/catalog.vue';
-import ProductPage from '@m/views/product.vue';
-import SettingsPage from '@m/views/settings.vue';
+import store from "@9/store";
 
-import DynamicRoutePage from '@m/views/dynamic-route.vue';
-import RequestAndLoad from '@m/views/request-and-load.vue';
-import NotFoundPage from '@m/views/404.vue';
-
-var routes = [
+const routes = [
   {
-    path: '/',
-    name: 'fileList',
-    component: () => import('../views/display/index.vue'),
-    keepAlive: true
+    path: "/",
+    name: "fileList",
+    component: FileList,
+    on: {
+      async pageBeforeIn(evt, page) {
+        const dir = page.route.query.dir || "/";
+        const preloader = page.app.preloader;
+        preloader.show();
+        try {
+          await store.dispatch("fetchFiles", dir);
+        } catch (error) {
+          //
+        } finally {
+          preloader.hide();
+        }
+      }
+    }
   },
   {
-    path: '/home',
-    component: HomePage,
+    path: "/upload/",
+    name: "upload",
+    history: false,
+    popup: {
+      component: Upload
+    }
   },
   {
-    path: '/about/',
-    component: AboutPage,
+    path: "/settings/",
+    name: "settings",
+    popup: {
+      component: Settings
+    }
   },
   {
-    path: '/form/',
-    component: FormPage,
-  },
-  {
-    path: '/catalog/',
-    component: CatalogPage,
-  },
-  {
-    path: '/product/:id/',
-    component: ProductPage,
-  },
-  {
-    path: '/settings/',
-    component: SettingsPage,
-  },
-
-  {
-    path: '/dynamic-route/blog/:blogId/post/:postId/',
-    component: DynamicRoutePage,
-  },
-  {
-    path: '/request-and-load/user/:userId/',
-    async: function (routeTo, routeFrom, resolve, /*reject*/) {
-      // Router instance
-      var router = this;
-
-      // App instance
-      var app = router.app;
-
-      // Show Preloader
-      app.preloader.show();
-
-      // User ID from request
-      // var userId = routeTo.params.userId;
-
-      // Simulate Ajax Request
-      setTimeout(function () {
-        // We got user data from request
-        var user = {
-          firstName: 'Vladimir',
-          lastName: 'Kharlampidi',
-          about: 'Hello, i am creator of Framework7! Hope you like it!',
-          links: [
-            {
-              title: 'Framework7 Website',
-              url: 'http://framework7.io',
-            },
-            {
-              title: 'Framework7 Forum',
-              url: 'http://forum.framework7.io',
-            },
-          ]
-        };
-        // Hide Preloader
-        app.preloader.hide();
-
-        // Resolve route to load page
-        resolve(
-          {
-            component: RequestAndLoad,
-          },
-          {
-            context: {
-              user: user,
-            }
-          }
-        );
-      }, 1000);
-    },
-  },
-  {
-    path: '(.*)',
-    component: NotFoundPage,
-  },
+    path: "(.*)",
+    component: NotFound
+  }
 ];
 
 export default routes;

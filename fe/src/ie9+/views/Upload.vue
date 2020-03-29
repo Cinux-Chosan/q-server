@@ -17,7 +17,7 @@
       </p>
       <p class="ant-upload-text">点击或将文件拖动到此处进行上传</p>
       <p class="ant-upload-hint">
-        请上传大小不超过
+        请不要上传大小超过
         <b>{{fileSizeLimit.toUpperCase()}}</b> 的文件
       </p>
     </UploadDragger>

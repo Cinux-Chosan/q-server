@@ -1,5 +1,5 @@
 <template>
-  <f7-list>
+  <f7-list class="listView">
     <f7-list-item
       :checkbox="showCheckbox"
       swipeout
@@ -34,6 +34,12 @@ export default {
 
   onClick() {},
 
+  watch: {
+    filteredFiles(v) {
+      console.log(v);
+    }
+  },
+
   computed: {
     ...mapGetters(["filteredFiles"])
   },
@@ -46,7 +52,10 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+.listView {
+  margin-top: 0;
+}
 .listIcon {
   font-size: 28px;
 }
