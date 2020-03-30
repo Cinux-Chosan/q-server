@@ -15,11 +15,8 @@
       <f7-icon ios="f7:close" md="material:close"></f7-icon>
       <f7-fab-buttons position="top">
         <f7-fab-button label href="/settings/">设置</f7-fab-button>
-        <f7-fab-button
-          label
-          :href="`/upload/?dir=${$f7route.query.dir || '/'}`"
-          v-if="config.uploadable"
-        >上传</f7-fab-button>
+        <!-- :href="`/upload/?dir=${$f7route.query.dir || '/'}`" -->
+        <f7-fab-button label @click.prevent="openUpload" v-if="config.uploadable">上传</f7-fab-button>
       </f7-fab-buttons>
     </f7-fab>
     <!-- <Upload :opened="uploadOpened" @onClose="uploadOpened = false" v-if="config.uploadable" /> -->
@@ -77,6 +74,17 @@ export default {
     },
     onContextMenu(e) {
       this.selecting = true;
+    },
+    openUpload() {
+      this.$f7router.navigate(
+        {
+          name: "upload",
+          query: { dir: this.$f7route.query.dir || "/" }
+        },
+        {
+          pushState: true
+        }
+      );
     }
   }
 };

@@ -10,11 +10,12 @@
       @click="onDirChange(file)"
       @taphold.native="onContextMenu"
     >
+      <a :href="getHref(file)"></a>
       <FileIcon :file="file" slot="media" class="listIcon" />
       <f7-swipeout-actions right>
         <f7-swipeout-button @click="more">详情</f7-swipeout-button>
-        <f7-swipeout-button>拷贝</f7-swipeout-button>
-        <f7-swipeout-button>拷贝</f7-swipeout-button>
+        <f7-swipeout-button @click="copyName">拷贝名称</f7-swipeout-button>
+        <f7-swipeout-button @click="copyUrl">拷贝链接</f7-swipeout-button>
       </f7-swipeout-actions>
     </f7-list-item>
   </f7-list>
@@ -23,6 +24,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import FileIcon from "@common/components/FileIcon.vue";
+import { copyTextToClipBoard } from "@utils";
 
 export default {
   components: { FileIcon },
@@ -45,7 +47,25 @@ export default {
     onDirChange(file) {
       this.$emit("onDirChange", file);
     },
-    more() {}
+    more() {},
+    copyName(file) {
+      copyTextToClipBoard(file.basename);
+      this.$f7.toast.show({
+        text: "文件名拷贝成功",
+        position: "top",
+        closeTimeout: 2000
+      });
+    },
+    copyUrl(file) {
+      // 
+    },
+    getHref(file) {
+      if (file.isDir) {
+        return this.$f7route.path
+      } else {
+        // 
+      }
+    }
   }
 };
 </script>

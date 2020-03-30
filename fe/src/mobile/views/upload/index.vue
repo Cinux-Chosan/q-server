@@ -10,7 +10,7 @@
         </f7-navbar>
         <input type="file" class="uploadInput" ref="upload" @change="onUploadChange" multiple />
         <div class="BreadCrumbTip">
-          <BreadCrumb :disabled="true"/>
+          <BreadCrumb />
         </div>
         <f7-block @click.native="onOpenUpload" inset>
           <f7-card class="uploadArea">
@@ -44,6 +44,7 @@ export default {
     BreadCrumb
   },
   data() {
+    window.x = this.$f7router;
     return {
       uploadedList: []
     };

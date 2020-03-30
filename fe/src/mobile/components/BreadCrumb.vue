@@ -3,8 +3,7 @@
     <a
       class="link breadCrumbItem"
       v-for="breadCrumb in breadcrumbs"
-      :href="createHref(breadCrumb.path)"
-      @click="forceUpdate"
+      @click="navigate(breadCrumb.path)"
       :key="breadCrumb.path"
       :force="true"
       :back="true"
@@ -34,9 +33,15 @@ export default {
     createHref(dir) {
       return `${this.$f7route.path}?dir=${dir}`;
     },
-    forceUpdate() {
-      this.$nextTick(() => {
-        // this.forceUpdate();
+    navigate(dir) {
+      const route = this.$f7route;
+      const { query } = route;
+      this.$f7router.navigate({
+        ...route,
+        query: {
+          ...query,
+          dir
+        }
       });
     }
   }

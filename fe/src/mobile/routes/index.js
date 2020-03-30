@@ -28,9 +28,12 @@ const routes = [
   {
     path: "/upload/",
     name: "upload",
-    history: false,
     popup: {
       component: Upload
+    },
+    options: {
+      pushState: false,
+      // animate: false
     }
   },
   {
