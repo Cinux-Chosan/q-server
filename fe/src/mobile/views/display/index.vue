@@ -1,5 +1,5 @@
 <template>
-  <f7-page>
+  <f7-page @page:init="pageMounted" @page:beforein="pageBeforeIn">
     <f7-navbar title="下载"></f7-navbar>
     <BreadCrumb />
     <ListView @onDirChange="onDirChange" />
@@ -18,10 +18,17 @@ export default {
     BreadCrumb
   },
   mounted() {
+    debugger;
     this.fetchFiles(this.$f7route.query.dir || "/");
   },
   methods: {
     ...mapActions(["fetchFiles"]),
+    pageMounted() {
+      this.fetchFiles(this.$f7route.query.dir || "/");
+    },
+    pageBeforeIn() {
+      this.fetchFiles(this.$f7route.query.dir || "/");
+    },
     /**
      * 如果是目录则进入目录，如果是文件则新窗口打开文件
      */
@@ -31,7 +38,6 @@ export default {
       const dir = path.join(parent, filePath);
       if (parent !== dir) {
         if (isDir) {
-          await this.fetchFiles(this.$f7route.query.dir || "/");
           this.$f7router.navigate({
             name: "fileList",
             query: { dir }

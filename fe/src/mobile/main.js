@@ -1,4 +1,4 @@
-import './eruda';
+// import './eruda';
 
 // Import Vue
 import Vue from 'vue';
