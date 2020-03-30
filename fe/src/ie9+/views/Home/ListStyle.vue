@@ -76,7 +76,7 @@ export default {
   }
 };
 
-function createColumn() {
+function createColumn(h) {
   const { $style, $router } = this;
   const columns = [
     {

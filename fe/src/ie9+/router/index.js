@@ -7,8 +7,7 @@ const routes = [
   {
     path: "/upload",
     name: "Upload",
-    component: () =>
-      import(/* webpackChunkName: "upload" */ "../views/Upload")
+    component: () => import(/* webpackChunkName: "upload" */ "../views/Upload")
   },
   {
     path: "*",

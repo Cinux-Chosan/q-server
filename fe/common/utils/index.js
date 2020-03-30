@@ -160,3 +160,15 @@ export const creatBreadCrumbs = (dir = "/") => {
   });
   return [rootObj, ...breadcrumbObjs];
 };
+
+/**
+ * 单个文件上传
+ * @param {File} file 上传的文件对象
+ * @param {String} dir 上传的目录
+ */
+export const uploadFile = (file, dir = "/") => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("dir", dir);
+  return request("/api/upload", formData);
+};

@@ -12,7 +12,7 @@
             <router-link :to="{ path: '/upload', query: { ...$route.query } }">上传</router-link>
           </template>
         </div>
-        <Search v-show="$route.path === '/'" class="navSearch" />
+        <Search v-if="$route.path === '/'" class="navSearch" />
       </div>
       <keep-alive>
         <router-view />

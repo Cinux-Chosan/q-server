@@ -1,13 +1,13 @@
 <template>
-  <f7-list>
+  <f7-list class="listView">
     <f7-list-item
-      :checkbox="showCheckbox"
+      :checkbox="selecting"
       swipeout
       v-for="(file) in filteredFiles"
       :key="file.basename"
       :title="file.basename"
       :data-path="file.basename"
-      @click="$emit('onDirChange', file)"
+      @click="onDirChange(file)"
       @taphold.native="onContextMenu"
     >
       <FileIcon :file="file" slot="media" class="listIcon" />
@@ -21,32 +21,39 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import FileIcon from "@common/components/FileIcon.vue";
 
 export default {
   components: { FileIcon },
-  data() {
-    return {
-      showCheckbox: false
-    };
+  props: {
+    selecting: {
+      type: Boolean
+    }
   },
-
-  onClick() {},
-
+  data() {
+    return {};
+  },
   computed: {
     ...mapGetters(["filteredFiles"])
   },
   methods: {
+    ...mapActions(["setSelectFiles"]),
     onContextMenu(e) {
-      this.showCheckbox = true;
+      this.$emit("onContextMenu");
+    },
+    onDirChange(file) {
+      this.$emit("onDirChange", file);
     },
     more() {}
   }
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+.listView {
+  margin-top: 0;
+}
 .listIcon {
   font-size: 28px;
 }
