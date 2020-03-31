@@ -1,7 +1,7 @@
 <template>
   <f7-page>
     <f7-navbar title :innerClass="$style.navbar">
-      <f7-nav-left>
+      <f7-nav-left :class="$style.navbarLeft">
         <f7-checkbox v-if="selecting" :class="$style.selectAll">全选</f7-checkbox>
         <BreadCrumb v-else />
       </f7-nav-left>
@@ -93,6 +93,8 @@ export default {
 <style lang="less" module>
 .navbar {
   padding: 0 15px;
+  // 覆盖 f7 overflow: hidden; 使面包屑可滑动
+  overflow-x: auto !important;
 }
 .selectAll {
   display: flex;

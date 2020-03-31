@@ -9,11 +9,11 @@
           </f7-nav-right>
         </f7-navbar>
         <input type="file" class="uploadInput" ref="upload" @change="onUploadChange" multiple />
-        <div class="BreadCrumbTip">
-          <BreadCrumb />
-        </div>
-        <f7-block @click.native="onOpenUpload" inset>
-          <f7-card class="uploadArea">
+        <f7-block inset>
+          <div class="BreadCrumbTip">
+            <BreadCrumb />
+          </div>
+          <f7-card class="uploadArea" @click.native="onOpenUpload">
             <f7-card-content :padding="false">
               <p>
                 <f7-icon f7="cloud_upload_fill" />
@@ -57,6 +57,7 @@ export default {
       for (const [k, file] of Object.entries(evt.target.files)) {
         const uploadInfo = { file, progress: 0 };
         this.uploadedList.push(uploadInfo);
+        debugger;
         uploadFile(file, this.$f7route.query.dir)
           .then(res => {
             uploadInfo.progress = 100;

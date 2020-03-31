@@ -52,7 +52,13 @@ export default {
 .breadCrumb {
   text-align: center;
   display: flex;
+  overflow: hidden;
+  margin: 0;
   .breadCrumbItem {
+    margin-left: 0 !important;
+    min-width: auto !important;
+    padding: 0 !important;
+    max-height: 100%;
     &::after {
       content: "/";
       display: inline-block;
