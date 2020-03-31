@@ -14,8 +14,8 @@
       <FileIcon :file="file" slot="media" class="listIcon" />
       <f7-swipeout-actions right>
         <f7-swipeout-button @click="more">详情</f7-swipeout-button>
-        <f7-swipeout-button @click="copyName">拷贝名称</f7-swipeout-button>
-        <f7-swipeout-button @click="copyUrl">拷贝链接</f7-swipeout-button>
+        <f7-swipeout-button @click="copyName(file)">拷贝名称</f7-swipeout-button>
+        <f7-swipeout-button @click="copyUrl(file)">拷贝链接</f7-swipeout-button>
       </f7-swipeout-actions>
     </f7-list-item>
   </f7-list>

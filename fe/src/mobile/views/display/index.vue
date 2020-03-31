@@ -11,13 +11,27 @@
       </f7-nav-right>
     </f7-navbar>
     <f7-fab position="right-bottom" slot="fixed" color="orange">
-      <f7-icon ios="f7:add" md="material:add"></f7-icon>
-      <f7-icon ios="f7:close" md="material:close"></f7-icon>
-      <f7-fab-buttons position="top">
-        <f7-fab-button label href="/settings/">设置</f7-fab-button>
-        <!-- :href="`/upload/?dir=${$f7route.query.dir || '/'}`" -->
-        <f7-fab-button label @click.prevent="openUpload" v-if="config.uploadable">上传</f7-fab-button>
-      </f7-fab-buttons>
+      <template v-if="selecting">
+        <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
+        <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
+        <f7-fab-buttons position="top">
+          <f7-fab-button label="批量下载" @click="batchDownload(false)">
+            <f7-icon ios="f7:arrow_merge" md="material:call_merge"></f7-icon>
+          </f7-fab-button>
+          <f7-fab-button label="逐个下载" @click="batchDownload(true)">
+            <f7-icon ios="f7:arrow_branch" md="material:call_split"></f7-icon>
+          </f7-fab-button>
+        </f7-fab-buttons>
+      </template>
+      <template v-else>
+        <f7-icon ios="f7:plus" md="material:add"></f7-icon>
+        <f7-icon ios="f7:xmark" md="material:close"></f7-icon>
+        <f7-fab-buttons position="top">
+          <f7-fab-button label href="/settings/">设置</f7-fab-button>
+          <!-- :href="`/upload/?dir=${$f7route.query.dir || '/'}`" -->
+          <f7-fab-button label @click.prevent="openUpload" v-if="config.uploadable">上传</f7-fab-button>
+        </f7-fab-buttons>
+      </template>
     </f7-fab>
     <!-- <Upload :opened="uploadOpened" @onClose="uploadOpened = false" v-if="config.uploadable" /> -->
     <ListView @onDirChange="onDirChange" @onContextMenu="onContextMenu" :selecting="selecting" />
@@ -31,6 +45,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import ListView from "./list.vue";
 import BreadCrumb from "@m/components/BreadCrumb.vue";
 import path from "path";
+import { download as doDownload } from "@utils";
 
 export default {
   components: {
@@ -43,10 +58,11 @@ export default {
     };
   },
   computed: {
-    ...mapState(["config"])
+    ...mapState(["config"]),
+    ...mapGetters(['selectedFiles'])
   },
   methods: {
-    ...mapActions(["fetchFiles"]),
+    ...mapActions(["fetchFiles", 'setSelecteFiles']),
     pageMounted() {
       this.fetchFiles(this.$f7route.query.dir || "/");
     },
@@ -85,6 +101,18 @@ export default {
           pushState: true
         }
       );
+    },
+    /**
+     * 执行下载逻辑
+     */
+    async batchDownload(isSeperate) {
+      const downloadList = this.selectedFiles || [];
+      const path = this.$route.query.dir || "/";
+      if (isSeperate) {
+        downloadList.forEach(file => doDownload([file], path)); // 逐个下载
+      } else {
+        doDownload(downloadList, path); // 批量下载
+      }
     }
   }
 };

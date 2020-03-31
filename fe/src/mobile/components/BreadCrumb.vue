@@ -63,6 +63,7 @@ export default {
       content: "/";
       display: inline-block;
       margin: 0 6px;
+      color: rgba(0, 0, 0, 0.45)
     }
   }
 }
