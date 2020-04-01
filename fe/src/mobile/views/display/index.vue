@@ -12,15 +12,19 @@
     </f7-navbar>
     <f7-fab position="right-bottom" slot="fixed" color="orange">
       <template v-if="selecting">
-        <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
-        <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
+        <div @click="isDownload">
+          <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
+          <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
+        </div>
         <f7-fab-buttons position="top">
-          <f7-fab-button label="批量下载" @click="batchDownload(false)">
-            <f7-icon ios="f7:arrow_merge" md="material:call_merge"></f7-icon>
-          </f7-fab-button>
-          <f7-fab-button label="逐个下载" @click="batchDownload(true)">
-            <f7-icon ios="f7:arrow_branch" md="material:call_split"></f7-icon>
-          </f7-fab-button>
+          <template v-if="selectedFiles.length > 1">
+            <f7-fab-button label="批量下载" @click="batchDownload(false)">
+              <f7-icon ios="f7:arrow_merge" md="material:call_merge"></f7-icon>
+            </f7-fab-button>
+            <f7-fab-button label="逐个下载" @click="batchDownload(true)">
+              <f7-icon ios="f7:arrow_branch" md="material:call_split"></f7-icon>
+            </f7-fab-button>
+          </template>
         </f7-fab-buttons>
       </template>
       <template v-else>
@@ -114,7 +118,6 @@ export default {
      */
     async batchDownload(isSeperate) {
       const downloadList = this.selectedFiles || [];
-      debugger;
       const path = this.$f7route.query.dir || "/";
       if (isSeperate) {
         downloadList.forEach(file => doDownload([file], path)); // 逐个下载
@@ -125,6 +128,12 @@ export default {
     toggleSelectAll(evt) {
       const { setSelectFiles } = this;
       this.setSelectFiles([!evt.target.checked, []]);
+    },
+    isDownload() {
+      const { selectedFiles } = this;
+      if (selectedFiles.length === 1) {
+        this.batchDownload();
+      }
     }
   }
 };
