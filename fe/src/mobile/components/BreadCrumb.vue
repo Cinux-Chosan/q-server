@@ -1,15 +1,16 @@
 <template>
   <f7-block class="breadCrumb">
-    <a
-      class="link breadCrumbItem"
-      v-for="breadCrumb in breadcrumbs"
-      @click="navigate(breadCrumb.path)"
-      :key="breadCrumb.path"
-      :force="true"
-      :back="true"
-      :animate="false"
-      :disabled="disabled"
-    >{{breadCrumb.name}}</a>
+    <span class="breadCrumbItem" v-for="breadCrumb in breadcrumbs" :key="breadCrumb.path">
+      <a
+        class="link breadCrumbLink"
+        @click="navigate(breadCrumb.path)"
+        :force="true"
+        :back="true"
+        :animate="false"
+        :disabled="disabled"
+      >{{breadCrumb.name}}</a>
+      <span class="sep">/</span>
+    </span>
   </f7-block>
 </template>
 
@@ -55,16 +56,20 @@ export default {
   overflow: hidden;
   margin: 0;
   .breadCrumbItem {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .breadCrumbLink {
     margin-left: 0 !important;
     min-width: auto !important;
     padding: 0 !important;
     max-height: 100%;
-    &::after {
-      content: "/";
-      display: inline-block;
-      margin: 0 6px;
-      color: rgba(0, 0, 0, 0.45)
-    }
+  }
+  .sep {
+    display: inline-block;
+    margin: 0 6px;
+    opacity: .6;
   }
 }
 </style>
