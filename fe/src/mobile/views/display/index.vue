@@ -27,9 +27,13 @@
         <f7-icon ios="f7:plus" md="material:add"></f7-icon>
         <f7-icon ios="f7:xmark" md="material:close"></f7-icon>
         <f7-fab-buttons position="top">
-          <f7-fab-button label @click="settingsOpened = true">设置</f7-fab-button>
+          <f7-fab-button label @click="settingsOpened = true">
+            <f7-icon ios="f7:gear_alt_fill" md="material:settings"></f7-icon>
+          </f7-fab-button>
           <!-- :href="`/upload/?dir=${$f7route.query.dir || '/'}`" -->
-          <f7-fab-button label @click.prevent="openUpload" v-if="config.uploadable">上传</f7-fab-button>
+          <f7-fab-button label @click.prevent="openUpload" v-if="config.uploadable">
+            <f7-icon ios="f7:cloud_upload_fill" md="material:cloud_upload"></f7-icon>
+          </f7-fab-button>
         </f7-fab-buttons>
       </template>
     </f7-fab>
@@ -110,7 +114,7 @@ export default {
      */
     async batchDownload(isSeperate) {
       const downloadList = this.selectedFiles || [];
-      debugger
+      debugger;
       const path = this.$f7route.query.dir || "/";
       if (isSeperate) {
         downloadList.forEach(file => doDownload([file], path)); // 逐个下载
