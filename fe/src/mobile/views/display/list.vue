@@ -2,12 +2,14 @@
   <f7-list class="listView">
     <f7-list-item
       :checkbox="selecting"
+      :checked="file.selected"
       swipeout
       v-for="(file) in filteredFiles"
       :key="file.basename"
       :title="file.basename"
       :data-path="file.basename"
       @click="onDirChange(file)"
+      @change="evt => file.selected = evt.target.checked"
       @taphold.native="onContextMenu"
     >
       <a :href="getHref(file)"></a>

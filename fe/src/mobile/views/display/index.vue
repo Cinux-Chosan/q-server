@@ -2,7 +2,7 @@
   <f7-page>
     <f7-navbar title :innerClass="$style.navbar">
       <f7-nav-left :class="$style.navbarLeft">
-        <f7-checkbox v-if="selecting" :class="$style.selectAll">全选</f7-checkbox>
+        <f7-checkbox v-if="selecting" :class="$style.selectAll" @change="toggleSelectAll">全选</f7-checkbox>
         <BreadCrumb v-else />
       </f7-nav-left>
       <f7-nav-title></f7-nav-title>
@@ -27,13 +27,14 @@
         <f7-icon ios="f7:plus" md="material:add"></f7-icon>
         <f7-icon ios="f7:xmark" md="material:close"></f7-icon>
         <f7-fab-buttons position="top">
-          <f7-fab-button label href="/settings/">设置</f7-fab-button>
+          <f7-fab-button label @click="settingsOpened = true">设置</f7-fab-button>
           <!-- :href="`/upload/?dir=${$f7route.query.dir || '/'}`" -->
           <f7-fab-button label @click.prevent="openUpload" v-if="config.uploadable">上传</f7-fab-button>
         </f7-fab-buttons>
       </template>
     </f7-fab>
     <!-- <Upload :opened="uploadOpened" @onClose="uploadOpened = false" v-if="config.uploadable" /> -->
+    <Settings :opened="settingsOpened" @onClose="settingsOpened = false" />
     <ListView @onDirChange="onDirChange" @onContextMenu="onContextMenu" :selecting="selecting" />
   </f7-page>
 </template>
@@ -50,19 +51,21 @@ import { download as doDownload } from "@utils";
 export default {
   components: {
     ListView,
+    Settings,
     BreadCrumb
   },
   data() {
     return {
-      selecting: false
+      selecting: false,
+      settingsOpened: false
     };
   },
   computed: {
     ...mapState(["config"]),
-    ...mapGetters(['selectedFiles'])
+    ...mapGetters(["selectedFiles", "filteredFiles"])
   },
   methods: {
-    ...mapActions(["fetchFiles", 'setSelecteFiles']),
+    ...mapActions(["fetchFiles", "setSelectFiles"]),
     pageMounted() {
       this.fetchFiles(this.$f7route.query.dir || "/");
     },
@@ -107,12 +110,17 @@ export default {
      */
     async batchDownload(isSeperate) {
       const downloadList = this.selectedFiles || [];
-      const path = this.$route.query.dir || "/";
+      debugger
+      const path = this.$f7route.query.dir || "/";
       if (isSeperate) {
         downloadList.forEach(file => doDownload([file], path)); // 逐个下载
       } else {
         doDownload(downloadList, path); // 批量下载
       }
+    },
+    toggleSelectAll(evt) {
+      const { setSelectFiles } = this;
+      this.setSelectFiles([!evt.target.checked, []]);
     }
   }
 };
@@ -130,6 +138,7 @@ export default {
   align-items: center;
   :global(.icon-checkbox) {
     margin-right: 1em;
+    border-color: inherit !important;
   }
 }
 </style>

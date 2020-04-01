@@ -46,7 +46,6 @@ export default {
   },
   computed: {
     ...mapState(["config", "boundingClientRects"]),
-    ...mapActions(["setSelecteFiles"]),
     ...mapGetters(["selectedFiles", "filteredFiles", "isBatch"]),
     firstSelectedFile() {
       return this.selectedFiles[0] || {};

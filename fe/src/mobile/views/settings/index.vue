@@ -1,11 +1,11 @@
 <template>
   <!-- <Upload /> -->
-  <f7-popup>
+  <f7-popup :opened="opened">
     <f7-view>
       <f7-page>
         <f7-navbar title="设置">
           <f7-nav-right>
-            <f7-link popup-close>关闭</f7-link>
+            <f7-link @click="$emit('onClose')">关闭</f7-link>
           </f7-nav-right>
         </f7-navbar>
         <f7-list inline-labels no-hairlines-md>
@@ -42,6 +42,12 @@ import { ENUM_SORT_TYPE, ENUM_SORT_ORDER } from "@9/utils/enums";
 import { mapState, mapMutations } from "vuex";
 
 export default {
+  props: {
+    opened: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       ENUM_SORT_TYPE,
