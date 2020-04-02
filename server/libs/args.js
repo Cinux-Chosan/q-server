@@ -49,6 +49,18 @@ yargs.options({
     alias: "t",
     default: package.name,
     describe: "网页标题"
+  },
+  user: {
+    describe: "用户名，格式： username/password",
+    coerce: user => {
+      const users = typeof user === 'string' ? [user] : user;
+      for (let index = 0; index < users.length; index++) {
+        const user = users[index];
+        if (user.split('/').length < 2) {
+          throw new Error('用户名或密码格式错误')
+        }
+      }
+    }
   }
 });
 

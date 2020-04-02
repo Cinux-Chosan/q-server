@@ -1,3 +1,7 @@
+/**
+ * 通过 post + get 下载文件
+ */
+
 const args = require("../libs/args");
 const { isAccessible } = require("../libs/util");
 const path = require("path");

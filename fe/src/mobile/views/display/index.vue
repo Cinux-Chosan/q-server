@@ -43,7 +43,7 @@
     </f7-fab>
     <!-- <Upload :opened="uploadOpened" @onClose="uploadOpened = false" v-if="config.uploadable" /> -->
     <Settings :opened="settingsOpened" @onClose="settingsOpened = false" />
-    <ListView @onDirChange="onDirChange" @onContextMenu="onContextMenu" :selecting="selecting" />
+    <ListView @onDirChange="onDirChange" @onContextMenu="onContextMenu" @download="(file) => batchDownload(true, [file])" :selecting="selecting" />
   </f7-page>
 </template>
 
@@ -116,8 +116,8 @@ export default {
     /**
      * 执行下载逻辑
      */
-    async batchDownload(isSeperate) {
-      const downloadList = this.selectedFiles || [];
+    async batchDownload(isSeperate, downloadList) {
+      downloadList = downloadList || this.selectedFiles || [];
       const path = this.$f7route.query.dir || "/";
       if (isSeperate) {
         downloadList.forEach(file => doDownload([file], path)); // 逐个下载

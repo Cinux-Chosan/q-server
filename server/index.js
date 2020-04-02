@@ -8,7 +8,7 @@ const bytes = require("bytes");
 const { address } = require("ip");
 const router = require("./router");
 const args = require("./libs/args");
-const { isDev, checkAccessble, getIndexFileCache, logReq } = require("./libs/util");
+const { checkAccessble, getIndexFileCache, logReq } = require("./libs/util");
 const { error, log } = require("./libs/debug");
 
 const app = new Koa();
@@ -38,7 +38,7 @@ app
   .use(koaStatic(args.dir, { index: false, hidden: !!args.hidden }))
   .use(koaStatic(path.join(__dirname, "www"), { index: false }))
   .use(ctx => {
-    return ctx.body = getIndexFileCache(ctx)
+    return (ctx.body = getIndexFileCache(ctx));
   })
   .on("error", err => {
     error(err.message);
@@ -46,4 +46,3 @@ app
   .listen(args.port, () => {
     log(`please visit http://${address()}:${args.port} to download files`);
   });
-

@@ -55,7 +55,7 @@ export const createDownloadIframe = async url => {
       isDev && debug.error("createDownloadIframe", error);
     }
   }, -1);
-  // setTimeout(() => document.body.removeChild(iframe), 20000);
+  setTimeout(() => document.body.removeChild(iframe), 6000);
 };
 
 export const download = async (downloadList, path) => {

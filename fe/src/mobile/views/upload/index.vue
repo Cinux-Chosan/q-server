@@ -44,7 +44,7 @@ export default {
     BreadCrumb
   },
   data() {
-    window.x = this.$f7router;
+    window.x = this;
     return {
       uploadedList: []
     };
@@ -54,12 +54,12 @@ export default {
       this.$refs.upload.click();
     },
     onUploadChange(evt) {
+      // eslint-disable-next-line
       for (const [k, file] of Object.entries(evt.target.files)) {
         const uploadInfo = { file, progress: 0 };
         this.uploadedList.push(uploadInfo);
-        debugger;
         uploadFile(file, this.$f7route.query.dir)
-          .then(res => {
+          .then(() => {
             uploadInfo.progress = 100;
             this.$f7.toast.show({
               text: `文件${file.name}上传成功`,
@@ -69,6 +69,12 @@ export default {
           })
           .catch(error => {
             // 上传失败
+            this.$f7.toast.show({
+              text: `文件${file.name}上传失败：${error.message}`,
+              closeButton: true,
+              closeButtonText: "关闭",
+              closeButtonColor: "red"
+            });
           });
       }
     }
