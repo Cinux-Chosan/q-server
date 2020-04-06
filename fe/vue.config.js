@@ -1,6 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
 const { resolve } = path;
 
 module.exports = {
@@ -59,7 +60,8 @@ module.exports = {
           template: path.join(__dirname, "public/ie9+.html"),
           chunks: "ie9+",
           excludeChunks: ["mobile"],
-          filename: "ie9+.html"
+          hash: true,
+          filename: "ie9+.[hash].html"
         };
 
         // 添加 mobile 入口
@@ -68,7 +70,8 @@ module.exports = {
           template: path.join(__dirname, "public/mobile.html"),
           chunks: "mobile",
           excludeChunks: ["ie9+"],
-          filename: "mobile.html"
+          hash: true,
+          filename: "mobile.[hash].html"
         };
         config
           .plugin("mobileHtml")
@@ -76,6 +79,14 @@ module.exports = {
           .end();
 
         return [ie9Plus, mobile];
+      })
+      .end();
+
+    config
+      .plugin("copy")
+      .tap(args => {
+        args[0][0].ignore.push({ glob: "**/*.html" });
+        return args;
       })
       .end();
 
@@ -102,6 +113,15 @@ module.exports = {
       .use(webpack.DefinePlugin, [
         {
           isDev: JSON.stringify(config.get("mode") !== "production")
+        }
+      ])
+      .end();
+    config
+      .plugin("ManifestPlugin")
+      .use(ManifestPlugin, [
+        {
+          writeToFileEmit: true,
+          fileName: path.join(__dirname, "../server/manifest.json")
         }
       ])
       .end();

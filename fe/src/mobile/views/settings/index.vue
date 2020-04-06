@@ -8,6 +8,9 @@
             <f7-link @click="$emit('onClose')">关闭</f7-link>
           </f7-nav-right>
         </f7-navbar>
+        <f7-toolbar tabbar bottom-md v-if="config.login">
+          <f7-link @click="logOut">退出登录</f7-link>
+        </f7-toolbar>
         <f7-list inline-labels no-hairlines-md>
           <f7-list-input
             label="排序类型"
@@ -40,6 +43,7 @@
 <script>
 import { ENUM_SORT_TYPE, ENUM_SORT_ORDER } from "@9/utils/enums";
 import { mapState, mapMutations } from "vuex";
+import req from "@req";
 
 export default {
   props: {
@@ -54,9 +58,16 @@ export default {
       ENUM_SORT_ORDER
     };
   },
-  computed: mapState(["settings"]),
+  computed: mapState(["settings", "config"]),
   methods: {
-    ...mapMutations(["updateState"])
+    ...mapMutations(["updateState"]),
+    async logOut() {
+      const result = await req("/api/logout");
+      if (result) {
+        this.$f7.toast.show({ text: "登出成功!" });
+        this.$f7router.navigate({ name: "login" });
+      }
+    }
   }
 };
 </script>

@@ -5,7 +5,7 @@ const args = require("../libs/args");
 module.exports = exports = {
   post: async ctx => {
     if (!args.upload) {
-      ctx.throw(500, "未开启文件上传功能", { expose: true });
+      ctx.throw(500, "未开启文件上传功能!", { expose: true });
     }
     const { request } = ctx;
     const { dir: dirPath = "/" } = request.body;
@@ -36,13 +36,13 @@ module.exports = exports = {
           .pipe(writer);
       });
       return (ctx.body = {
-        result: "文件上传成功",
-        message: "文件上传成功",
+        result: "文件上传成功!",
+        message: "文件上传成功!",
         success: true
       });
     } catch (error) {
       return (ctx.body = {
-        result: "文件上传失败",
+        result: "文件上传失败!",
         message: error.message,
         success: false
       });

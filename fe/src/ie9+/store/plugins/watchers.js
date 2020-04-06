@@ -2,6 +2,6 @@
 export default store => {
   store.watch(
     ({ settings }, { filteredFiles }) => ({ filteredFiles, ...settings }),
-    () => store.dispatch("getBoundingClientRect")
+    () => store.dispatch("getBoundingClientRectLimitted")
   );
 };

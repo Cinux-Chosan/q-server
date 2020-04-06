@@ -8,7 +8,7 @@
     <div class="contextMenuContainer" @contextmenu="onContextMenu">
       <slot />
     </div>
-    <Menu slot="overlay" class="unselectable">
+    <Menu slot="overlay" class="unselectable" v-if="showContextMenu">
       <MenuItem key="open" v-if="!isBatch" @click="open">打开</MenuItem>
       <MenuItem key="batchDownload" @click="download()">{{isBatch ? '合并下载' : '下载'}}</MenuItem>
       <MenuItem key="seperateDownload" @click="download(true)" v-if="isBatch">逐个下载</MenuItem>
@@ -80,7 +80,13 @@ export default {
      */
     copyName() {
       const { firstSelectedFile: file } = this;
-      copyTextToClipBoard(file.basename) && (this.showContextMenu = false);
+      try {
+        copyTextToClipBoard(file.basename);
+        this.$message.success("拷贝成功!");
+        this.closeContextMenu();
+      } catch (error) {
+        this.$message.error("拷贝失败!");
+      }
     },
     /**
      * 复制文件链接到剪切板
@@ -88,7 +94,13 @@ export default {
     copyHref() {
       const { firstSelectedFile: file } = this;
       const url = file.dom.querySelector("a.fileLink").href;
-      copyTextToClipBoard(url) && this.closeContextMenu();
+      try {
+        copyTextToClipBoard(url);
+        this.$message.success("拷贝成功!");
+        this.closeContextMenu();
+      } catch (error) {
+        this.$message.error("拷贝失败!");
+      }
     },
     /**
      * 执行下载逻辑
@@ -106,7 +118,7 @@ export default {
      */
     download(isSeperate) {
       this.batchDownload(this.selectedFiles, isSeperate);
-      this.showContextMenu = false;
+      this.closeContextMenu();
     },
     /**
      * 进入对应文件夹的上传界面
@@ -114,7 +126,7 @@ export default {
     goToUpload() {
       const { firstSelectedFile: file } = this;
       let dir = path.join(this.$route.query.dir, file.basename);
-      this.showContextMenu = false;
+      this.closeContextMenu();
       this.$nextTick(() =>
         this.$router.push({ path: "upload", query: { dir } })
       );

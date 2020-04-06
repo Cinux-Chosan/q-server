@@ -3,6 +3,7 @@
   <div
     tabindex="0"
     class="rangeSelectorContainer"
+    ref="rangeSelectorContainer"
     @mousedown.left="onMouseDown"
     @mouseup.left="onMouseUp"
     @mousemove="onMouseMove"
@@ -37,19 +38,27 @@ export default {
   mounted() {
     // fix：当用户鼠标处于按下状态时，通过滚轮滚动页面不会触发 mousemove 事件
     // 因此需要通过 onscroll 来弥补滚动时的实时选中
-    const { onScroll, getBoundingClientRect } = this;
+    const { onScroll, getBoundingClientRectLimitted } = this;
     window.addEventListener("scroll", onScroll);
-    window.addEventListener("resize", getBoundingClientRect);
+    window.addEventListener("resize", getBoundingClientRectLimitted);
     this.$once("hook:beforeDestroy", () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", getBoundingClientRect);
+      window.removeEventListener("resize", getBoundingClientRectLimitted);
     });
   },
+  watch: {
+    files() {
+      try {
+        setTimeout(() => {
+          this.$refs.rangeSelectorContainer.focus();
+        });
+      } catch (error) {
+        //
+      }
+    }
+  },
   computed: {
-    ...mapState({
-      fileRects: "boundingClientRects",
-      searchText: "searchText"
-    }),
+    ...mapState(["files"]),
     ...mapGetters(["filteredFiles", "selectedFiles"]),
     rect() {
       if (!this.start) return;
@@ -73,7 +82,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setSelectFiles", "getBoundingClientRect"]),
+    ...mapActions(["setSelectFiles", "getBoundingClientRectLimitted"]),
     @throttle(100)
     setSelectFilesThrottled() {
       this.setSelectFiles(...arguments);
@@ -126,7 +135,9 @@ export default {
     },
     selectAll(evt) {
       if (evt.metaKey || evt.ctrlKey) {
-        this.setSelectFiles([false]);
+        const { filteredFiles } = this;
+        const filesInDom = filteredFiles.filter(file => file.dom);
+        this.setSelectFiles([true, filesInDom]);
       }
     }
   }
@@ -137,6 +148,7 @@ export default {
 .rangeSelectorContainer {
   height: 100%;
   position: relative;
+  outline: none;
   .selectorTip {
     position: fixed;
     right: 10px;

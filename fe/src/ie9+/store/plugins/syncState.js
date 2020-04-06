@@ -21,7 +21,5 @@ export default store =>
   store.watch(
     ({ settings }) => settings,
     newVal => setStateToLocalStorage(newVal), // 每次 settings 发生改变同步到 localStorage
-    {
-      deep: true
-    }
+    { deep: true }
   );

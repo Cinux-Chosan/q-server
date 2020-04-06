@@ -1,15 +1,16 @@
 import Upload from "../views/upload/index.vue";
 import Settings from "../views/settings/index.vue";
-import FileList from "../views/display/index.vue";
+import Display from "../views/display/index.vue";
 import NotFound from "../views/404.vue";
+import Login from "../views/login/index.vue";
 
 import store from "@9/store";
 
 const routes = [
   {
     path: "/",
-    name: "fileList",
-    component: FileList,
+    name: "Display",
+    component: Display,
     on: {
       async pageBeforeIn(evt, page) {
         const dir = page.route.query.dir || "/";
@@ -32,8 +33,7 @@ const routes = [
       component: Upload
     },
     options: {
-      pushState: false,
-      // animate: false
+      pushState: false
     }
   },
   {
@@ -41,6 +41,13 @@ const routes = [
     name: "settings",
     popup: {
       component: Settings
+    }
+  },
+  {
+    path: "/login/",
+    name: "login",
+    loginScreen: {
+      component: Login
     }
   },
   {

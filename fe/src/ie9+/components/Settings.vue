@@ -61,14 +61,17 @@
               :value="settings.displaySize"
               buttonStyle="solid"
             >
-              <RadioButton :value="ENUM_DISPLAY_SIZE.BIG">大</RadioButton>
               <RadioButton :value="ENUM_DISPLAY_SIZE.SMALL">小</RadioButton>
+              <RadioButton :value="ENUM_DISPLAY_SIZE.BIG">大</RadioButton>
             </RadioGroup>
           </FormItem>
         </template>
       </Form>
+      <div class="footer" v-if="config.login">
+        <Button @click="onLogout" type="primary">退出登录</Button>
+      </div>
     </Drawer>
-    <SvgIcon icon-class="gears" class="questionMark inlineBlock" @click="openHelp" />
+    <SvgIcon icon-class="gears" class="questionMark inlineBlock" @click="openSettings" />
   </span>
 </template>
 <script>
@@ -78,7 +81,8 @@ import {
   Form,
   Radio,
   Switch as ASwitch,
-  InputNumber
+  InputNumber,
+  Button
 } from "ant-design-vue";
 import {
   ENUM_SORT_TYPE,
@@ -88,6 +92,7 @@ import {
   ENUM_DISPLAY_TYPE_LIST_IS_PAGINATION
 } from "@9/utils/enums";
 import { mapState, mapMutations, mapActions } from "vuex";
+import request from "@req";
 
 const { Item: FormItem } = Form;
 const { Group: RadioGroup, Button: RadioButton } = Radio;
@@ -101,7 +106,8 @@ export default {
     FormItem,
     RadioGroup,
     RadioButton,
-    InputNumber
+    InputNumber,
+    Button
   },
   data() {
     return {
@@ -113,22 +119,40 @@ export default {
       ENUM_DISPLAY_TYPE_LIST_IS_PAGINATION
     };
   },
-  computed: mapState(["settings"]),
+  computed: mapState(["settings", "config"]),
   methods: {
     ...mapMutations(["updateState"]),
-    ...mapActions(["getBoundingClientRect"]),
-    openHelp() {
+    ...mapActions(["getBoundingClientRectLimitted"]),
+    openSettings() {
       this.visible = true;
     },
     onClose() {
       this.visible = false;
-      this.getBoundingClientRect();
+      this.getBoundingClientRectLimitted();
+    },
+    async onLogout() {
+      const result = await request("/api/logout");
+      if (result) {
+        this.$message.success("退出登录成功");
+        this.$router.replace({ name: "Login" });
+      }
     }
   }
 };
 </script>
 
 <style lang="less" scoped>
+.footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #e9e9e9;
+  padding: 10px 16px;
+  background: #fff;
+  text-align: center;
+  z-index: 1;
+}
 .questionMark {
   width: 30px;
   font-size: 20px;

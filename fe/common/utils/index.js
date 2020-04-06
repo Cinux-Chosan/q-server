@@ -3,14 +3,24 @@ import request from "@req";
 import moment from "moment";
 import debug from "@utils/debug";
 import iconMap from "@icons/map";
-import { message } from "ant-design-vue";
 
+let uniqueKey = 0;
+
+export const getUniqueKey = () => uniqueKey++;
 export const opKeys = ["metaKey", "ctrlKey", "altKey"];
 export const isOpkeyPressed = evt => opKeys.find(key => evt[key]);
 export const isParentDir = file => file.path === "..";
 export const isNull = value => value === null;
 export const isUndefined = value => value === undefined;
 export const noop = () => {};
+export const h = tag => document.createElement(tag);
+export const RAF =
+  window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame ||
+  (callback => window.setTimeout(callback, 1000 / 60));
 
 /**
  *
@@ -18,7 +28,7 @@ export const noop = () => {};
  * @param {Number} timeout 超时时间，默认为 3000 ms，传入 -1 则禁用超时
  * @param {Number}} interval 每次检查 fn 返回值的中间间隔时间，单位 ms
  */
-export const wait = (fn, timeout = 3000, interval = 100) => {
+export const waitUntil = (fn, timeout = 3000, interval = 100) => {
   const infinity = timeout < 0;
   return new Promise((res, rej) => {
     (async () => {
@@ -41,12 +51,14 @@ export const wait = (fn, timeout = 3000, interval = 100) => {
   });
 };
 
+export const wait = time => new Promise(resolve => setTimeout(resolve, time));
+
 export const createDownloadIframe = async url => {
   const iframe = document.createElement("iframe");
   iframe.src = url;
   iframe.className = "hidden";
   document.body.appendChild(iframe);
-  await wait(() => {
+  await waitUntil(() => {
     try {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
       const { readyState } = iframeDoc;
@@ -58,16 +70,52 @@ export const createDownloadIframe = async url => {
   setTimeout(() => document.body.removeChild(iframe), 6000);
 };
 
-export const download = async (downloadList, path) => {
-  downloadList = downloadList.map(item => {
-    // 对多余字段进行过滤
-    const { path, fullPath, isDir, basename } = item;
-    return { path, fullPath, isDir, basename };
-  });
-  const downloadId = await request("/api/download", { downloadList, path });
+export const formatDownload = downloadList => {
+  return downloadList.map(item => item.fullPath || item);
+};
+
+/**
+ * 下载文件列表
+ * @param {Array} downloadList 需要下载的文件路径列表
+ */
+export const downloadWithGetPost = async downloadList => {
+  downloadList = formatDownload(downloadList);
+  const stamp = getUniqueKey();
+  const downloadId = await request(`/api/download?${stamp}`, { downloadList });
   return createDownloadIframe(
-    `/api/download?isDownload=&downloadId=${downloadId}`
+    `/api/download?isDownload=&downloadId=${downloadId}&stamp=${stamp}`
   );
+};
+
+export const createInput = (name, value) => {
+  return Object.assign(h("input"), { name, value });
+};
+
+/**
+ * 下载文件列表
+ * @param {Array} downloadList 需要下载的文件路径列表
+ * 该下载方案不适合同时下载多个文件的情况，因为多个表单提交，前面的会被浏览器置为 canceled
+ */
+export const downloadWithFrom = downloadList => {
+  downloadList = formatDownload(downloadList);
+  const form = document.createElement("form");
+  form.action = `/api/postDownload?${getUniqueKey()}`;
+  form.method = "POST";
+  form.className = "hidden";
+  downloadList.forEach(fullPath => {
+    form.append(createInput("downloadList", fullPath));
+  });
+  document.body.append(form);
+  form.submit();
+  setTimeout(() => {
+    form.remove();
+  });
+};
+
+export const download = async (downloadList, path, type = 1) => {
+  type === 1
+    ? downloadWithGetPost(downloadList, path)
+    : downloadWithFrom(downloadList, path);
 };
 
 export const copyTextToClipBoard = text => {
@@ -85,10 +133,14 @@ export const copyTextToClipBoard = text => {
   }
   try {
     const isSuccess = document.execCommand("copy"); //执行复制
-    isSuccess ? message.success("拷贝成功") : message.error("拷贝失败");
-    return isSuccess;
+    if (isSuccess) {
+      return true;
+    } else {
+      throw new Error("拷贝失败");
+    }
   } catch (error) {
-    message.error(`拷贝失败：${error.message}`);
+    isDev && debug.error(error.message);
+    throw error;
   } finally {
     document.body.removeChild(textarea); //删除元素
     currentFocus.focus();

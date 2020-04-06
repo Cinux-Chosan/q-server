@@ -3,10 +3,9 @@
  */
 
 const args = require("../libs/args");
-const { isAccessible } = require("../libs/util");
+const { appendToArchiver, isDir } = require("../libs/util");
 const path = require("path");
 const fs = require("fs");
-const archiver = require("archiver");
 
 let downloadId = 0;
 const donwloadMap = {};
@@ -19,19 +18,20 @@ module.exports = exports = {
       const { downloadList } = downloadInfo;
       delete donwloadMap[localId];
       if (downloadList && downloadList.length > 0) {
-        const [firstFile = {}] = downloadList;
+        const [firstFilePath] = downloadList;
         const isMultiple = downloadList.length > 1;
-        if (!isMultiple && !firstFile.isDir) {
+        if (!isMultiple && !isDir(path.join(args.dir, firstFilePath), true)) {
           // 只有一个文件并且是非目录，直接下载，不走 zip 压缩
-          const fullPath = path.join(args.dir, firstFile.fullPath);
+          const fullPath = path.join(args.dir, firstFilePath);
+          const basename = path.basename(fullPath);
           ctx.set({
-            "Content-Disposition": `attachment;filename=${firstFile.basename}`
+            "Content-Disposition": `attachment;filename=${basename}`
           });
           return (ctx.body = fs.createReadStream(fullPath));
         } else {
           // 批量下载，适用于目录或者多个文件打包下载
-          const archive = appendToArchiver(downloadInfo);
-          const baseName = path.basename(firstFile.path);
+          const archive = appendToArchiver(downloadList.map(fullPath => path.join(args.dir, fullPath)));
+          const baseName = path.basename(firstFilePath);
           const downloadName = isMultiple ? "batch" : baseName;
           ctx.set({
             "Content-Disposition": `attachment;filename=${downloadName}.zip`
@@ -50,28 +50,9 @@ module.exports = exports = {
    * 先 post 要下载的文件，生成一个下载 id，前端根据此下载 id 进行下载
    */
   post: ctx => {
-    const { downloadList, path } = ctx.request.body;
+    const { downloadList } = ctx.request.body;
     const loaclId = downloadId++;
-    donwloadMap[loaclId] = { downloadList, path };
+    donwloadMap[loaclId] = { downloadList };
     return (ctx.body = { success: true, result: loaclId });
   }
 };
-
-function appendToArchiver({ downloadList = [], path: subPath }) {
-  const cwd = path.join(args.dir, subPath);
-  const archive = archiver("zip");
-  downloadList.forEach(({ basename }) => {
-    const fullPath = path.join(cwd, basename);
-    // 对每个路径进行越权校验
-    if (isAccessible(args.dir, fullPath)) {
-      const globConf = { cwd, dot: args.hidden };
-      archive
-        .glob(basename, globConf) // 匹配文件
-        .glob(`${basename}/**/*`, globConf); // 匹配目录和内容
-    } else {
-      throw new Error("访问越权");
-    }
-  });
-  archive.finalize();
-  return archive;
-}

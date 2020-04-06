@@ -5,7 +5,12 @@ import Rect from "@classes/Rect";
 import debug from "@utils/debug";
 import syncState, { loadStateFromLocalStorage } from "./plugins/syncState";
 import watcher from "./plugins/watchers";
-import { ENUM_SORT_TYPE, ENUM_SORT_ORDER, ENUM_DISPLAY_TYPE, ENUM_DISPLAY_SIZE } from "@9/utils/enums";
+import {
+  ENUM_SORT_TYPE,
+  ENUM_SORT_ORDER,
+  ENUM_DISPLAY_TYPE,
+  ENUM_DISPLAY_SIZE
+} from "@9/utils/enums";
 import { debounce } from "@utils/decorators";
 import { setValue } from "@utils";
 
@@ -39,21 +44,23 @@ export default new Vuex.Store({
   mutations: {
     updateState(state, values) {
       for (const [key, val] of Object.entries(values)) {
-        log(key, val)
+        log(key, val);
         setValue(state, key, val);
       }
     },
     mergeRectToFile(state, rects) {
       const { files } = state;
       files.forEach(file => {
-        const domRect = rects.find(({ dom }) => file.basename === dom.dataset['path']);
+        const domRect = rects.find(
+          ({ dom }) => file.basename === dom.dataset["path"]
+        );
         if (domRect) {
           const { dom } = domRect;
           Object.assign(file, { dom, domRect });
         } else {
           // 如果 domRect 不存在，则说明可能处于搜索或者分页中
           // 需要清除对应的 domRect，避免未出现在页面中却被 ReangeSelector 选中
-          Object.assign(file, { dom: null, domRect: null })
+          Object.assign(file, { dom: null, domRect: null });
         }
       });
     }
@@ -77,14 +84,19 @@ export default new Vuex.Store({
     },
     // 批量设置 list 中元素的 selected 字段
     /**
-     * 
+     *
      * @param {Store} param0 Vuex store
      * @param {Array} param1 [是否选中, 需要被选中的列表(不在列表中的将会设置相反状态), 是否通过 index 来设置（默认为 false）]
      */
-    setSelectFiles({ getters: { filteredFiles: files }, state }, [selected, list = [], byIndex]) {
+    setSelectFiles(
+      { getters: { filteredFiles: files }, state },
+      [selected, list = [], byIndex]
+    ) {
       files.forEach((file, index) => {
         if (!state.cancelSetSelect) {
-          file.selected = list.includes(byIndex ? index : file) ? selected : !selected;
+          file.selected = list.includes(byIndex ? index : file)
+            ? selected
+            : !selected;
         }
       });
     },
@@ -95,30 +107,33 @@ export default new Vuex.Store({
      */
     setSearchText({ commit, dispatch }, searchText = "") {
       commit("updateState", { searchText });
-      dispatch("getBoundingClientRect");
+      dispatch("getBoundingClientRectLimitted");
     },
     /**
      * 重新计算 BoundingClientRect
      * @param {Store} param0 Vuex store
      */
+    getBoundingClientRect({ commit }) {
+      Vue.nextTick(() => {
+        const domList = [...document.querySelectorAll("[data-path]")];
+        const fileRects = domList.map(dom => {
+          const { left, top, width, height } = dom.getBoundingClientRect();
+          const rect = new Rect({ left, top, width, height });
+          rect.move(window.pageXOffset, window.pageYOffset);
+          rect.dom = dom;
+          return rect;
+        });
+        commit("updateState", { boundingClientRects: fileRects });
+        commit("mergeRectToFile", fileRects);
+      });
+    },
     @debounce(400)
-getBoundingClientRect({ commit }) {
-  Vue.nextTick(() => {
-    const domList = [...document.querySelectorAll("[data-path]")];
-    const fileRects = domList.map(dom => {
-      const { left, top, width, height } = dom.getBoundingClientRect();
-      const rect = new Rect({ left, top, width, height });
-      rect.move(window.pageXOffset, window.pageYOffset);
-      rect.dom = dom;
-      return rect;
-    });
-    commit("updateState", { boundingClientRects: fileRects });
-    commit("mergeRectToFile", fileRects);
-  });
-}
+    getBoundingClientRectLimitted({ dispatch }) {
+      dispatch("getBoundingClientRect");
+    }
   },
-getters: {
-  allFiles: ({ files }) => files,
+  getters: {
+    allFiles: ({ files }) => files,
     filteredFiles: ({ files, searchText, settings }) => {
       const { sortType, sortOrder } = settings;
       let filterd = files.filter(file => file.basename.includes(searchText));
@@ -147,7 +162,8 @@ getters: {
             break;
           case ENUM_SORT_TYPE.SIZE:
             {
-              if (prevIsDir && nextIsDir) result = prevBaseName > nextBaseName ? 1 : -1;
+              if (prevIsDir && nextIsDir)
+                result = prevBaseName > nextBaseName ? 1 : -1;
               else if (!prevIsDir && !nextIsDir) result = prevSize - nextSize;
               else result = prevIsDir ? -1 : 1;
             }
@@ -175,7 +191,8 @@ getters: {
       });
       return filterd;
     },
-      selectedFiles: (state, { filteredFiles }) => filteredFiles.filter(file => file.selected),
-        isBatch: (state, { selectedFiles }) => selectedFiles.length > 1
-}
+    selectedFiles: (state, { filteredFiles }) =>
+      filteredFiles.filter(file => file.selected),
+    isBatch: (state, { selectedFiles }) => selectedFiles.length > 1
+  }
 });

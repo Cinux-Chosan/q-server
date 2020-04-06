@@ -5,7 +5,7 @@
       tag="ul"
       name="fileList"
       class="fileList clearfix"
-      @after-enter="getBoundingClientRect"
+      @after-enter="getBoundingClientRectLimitted"
     >
       <li
         @dblclick="$emit('onDirChange',{ path: '..', isDir: true})"
@@ -64,7 +64,7 @@ export default {
   computed: mapGetters(["filteredFiles"]),
   methods: {
     getHref,
-    ...mapActions(["getBoundingClientRect"]),
+    ...mapActions(["getBoundingClientRectLimitted"]),
     getPopupContainer() {
       return document.getElementById("popContainer");
     }

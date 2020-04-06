@@ -5,14 +5,29 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/upload",
-    name: "Upload",
-    component: () => import(/* webpackChunkName: "upload" */ "../views/Upload")
+    path: "/login",
+    name: "Login",
+    component: () => import(/* webpackChunkName: "login" */ "../views/Login")
   },
+
   {
-    path: "*",
+    path: "/",
     name: "Home",
-    component: () => import(/* webpackChunkName: "home" */ "../views/Home")
+    component: () => import(/* webpackChunkName: "home" */ "../views/Home"),
+    children: [
+      {
+        path: "/upload",
+        name: "Upload",
+        component: () =>
+          import(/* webpackChunkName: "upload" */ "../views/Upload")
+      },
+      {
+        path: "*",
+        name: "Display",
+        component: () =>
+          import(/* webpackChunkName: "display" */ "../views/Display")
+      }
+    ]
   }
 ];
 

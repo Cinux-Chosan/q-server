@@ -1,10 +1,11 @@
 <template>
   <f7-popup>
-    <!-- <f7-popup id="pop-upload" :opened="opened" @popup:closed="$emit('onClose')"> -->
     <f7-view>
+      <!-- <f7-popup id="pop-upload" :opened="opened" @popup:closed="$emit('onClose')"> -->
       <f7-page>
         <f7-navbar title="上传">
           <f7-nav-right>
+            <!-- <f7-link @click="close">关闭</f7-link> -->
             <f7-link popup-close>关闭</f7-link>
           </f7-nav-right>
         </f7-navbar>
@@ -50,6 +51,11 @@ export default {
     };
   },
   methods: {
+    close() {
+      this.$f7.popup.close();
+      const { query } = this.$f7route;
+      this.$f7router.navigate({ name: "Display", query });
+    },
     onOpenUpload() {
       this.$refs.upload.click();
     },
@@ -61,11 +67,7 @@ export default {
         uploadFile(file, this.$f7route.query.dir)
           .then(() => {
             uploadInfo.progress = 100;
-            this.$f7.toast.show({
-              text: `文件${file.name}上传成功`,
-              position: "top",
-              closeTimeout: 2000
-            });
+            this.$f7.toast.show({ text: `文件${file.name}上传成功` });
           })
           .catch(error => {
             // 上传失败

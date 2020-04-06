@@ -37,12 +37,10 @@ export default {
     navigate(dir) {
       const route = this.$f7route;
       const { query } = route;
+      if (query.dir === dir) return;
       this.$f7router.navigate({
         ...route,
-        query: {
-          ...query,
-          dir
-        }
+        query: { ...query, dir }
       });
     }
   }
@@ -52,7 +50,7 @@ export default {
 <style lang="less" scoped>
 .breadCrumb {
   text-align: center;
-  display: flex;
+  display: flex !important;
   overflow: hidden;
   margin: 0;
   .breadCrumbItem {
@@ -69,7 +67,7 @@ export default {
   .sep {
     display: inline-block;
     margin: 0 6px;
-    opacity: .6;
+    opacity: 0.6;
   }
 }
 </style>

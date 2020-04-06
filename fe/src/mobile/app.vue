@@ -14,6 +14,7 @@ import { mapMutations } from "vuex";
 
 export default {
   data() {
+    window.xx = this;
     return {
       // Framework7 Parameters
       f7params: {
@@ -23,10 +24,14 @@ export default {
           // disableContextMenu: false, // 是否开启上下文联动
           tapHold: true
         },
+        toast: {
+          position: "top",
+          closeTimeout: 2000
+        },
         view: {
           pushState: true,
           pushStateOnLoad: false,
-          pushStateSeparator: '#',
+          pushStateSeparator: "#"
         },
         // App root data
         data: function() {
@@ -37,11 +42,7 @@ export default {
 
         // App routes
         routes
-      },
-
-      // Login screen data
-      username: "",
-      password: ""
+      }
     };
   },
   created() {
@@ -50,7 +51,7 @@ export default {
   methods: {
     ...mapMutations(["updateState"]),
     async getConfig() {
-      const config = await request("/api/config");
+      const config = await request("/api/sysConf");
       this.updateState({ config });
     }
   },

@@ -1,9 +1,10 @@
 <script>
 import FileIcon from "@common/components/FileIcon";
 import { Table, Empty } from "ant-design-vue";
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapState, mapActions } from "vuex";
 import { ENUM_DISPLAY_SIZE } from "@9/utils/enums";
 import { formatTime, getHref, noop } from "@utils/";
+import { debounce } from "@utils/decorators";
 import bytes from "bytes";
 
 export default {
@@ -38,6 +39,11 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["getBoundingClientRect"]),
+    @debounce(150)
+    refreshClientRect() {
+      this.getBoundingClientRect();
+    },
     customRow(file, index) {
       const { $style, settings, showParentDir } = this;
       const { fileItem, selected, big, small } = $style;
@@ -57,10 +63,8 @@ export default {
     }
   },
   render() {
-    const { listData, customRow, columns, settings } = this;
-    const paginationOpt = settings.isPagination && {
-      pageSize: settings.listPageSize
-    };
+    const { listData, customRow, columns, settings, refreshClientRect } = this;
+    const paginationOpt = settings.isPagination && { pageSize: settings.listPageSize };
     return (
       // <div vOn:animationend_stop={noop} vOn:transitionend_stop={noop}>
       <Table
@@ -69,6 +73,7 @@ export default {
         rowKey="basename"
         pagination={paginationOpt}
         customRow={customRow}
+        vOn:change={refreshClientRect}
         locale={{ emptyText: <Empty description="空空如也~" /> }}
       ></Table>
       // </div>
@@ -76,6 +81,7 @@ export default {
   }
 };
 
+/* eslint-disable-next-line */
 function createColumn(h) {
   const { $style, $router } = this;
   const columns = [
@@ -85,7 +91,12 @@ function createColumn(h) {
       customRender: (text, file) => {
         const href = getHref(file, $router);
         return (
-          <a href={href} class="block noTransition fileLink" draggable="false" vOn:click_prevent={noop}>
+          <a
+            href={href}
+            class="block noTransition fileLink"
+            draggable="false"
+            vOn:click_prevent={noop}
+          >
             <FileIcon file={file} class={$style.icon} />
             {file.basename}
           </a>

@@ -51,15 +51,23 @@ yargs.options({
     describe: "网页标题"
   },
   user: {
-    describe: "用户名，格式： username/password",
+    describe: "用户名和密码对，支持英文字符、数字、星号和下划线，格式：username/password",
+    default: new Map(),
     coerce: user => {
-      const users = typeof user === 'string' ? [user] : user;
+      const users = typeof user === "string" ? [user] : user;
+      const userInfo = new Map();
       for (let index = 0; index < users.length; index++) {
         const user = users[index];
-        if (user.split('/').length < 2) {
-          throw new Error('用户名或密码格式错误')
+        const match = user.match(/^([_*A-Za-z0-9]+)\/([_*A-Za-z0-9]+)$/);
+        if (match) {
+          const username = match[1];
+          const password = match[2];
+          userInfo.set(username, password);
+        } else {
+          throw new Error("用户名或密码格式错误");
         }
       }
+      return userInfo;
     }
   }
 });

@@ -10,7 +10,7 @@
         <f7-link @click="selecting = false">取消</f7-link>
       </f7-nav-right>
     </f7-navbar>
-    <f7-fab position="right-bottom" slot="fixed" color="orange">
+    <f7-fab position="right-bottom" slot="fixed" color="blue">
       <template v-if="selecting">
         <div @click="isDownload">
           <f7-icon ios="f7:cloud_download_fill" md="material:cloud_download"></f7-icon>
@@ -43,12 +43,16 @@
     </f7-fab>
     <!-- <Upload :opened="uploadOpened" @onClose="uploadOpened = false" v-if="config.uploadable" /> -->
     <Settings :opened="settingsOpened" @onClose="settingsOpened = false" />
-    <ListView @onDirChange="onDirChange" @onContextMenu="onContextMenu" @download="(file) => batchDownload(true, [file])" :selecting="selecting" />
+    <ListView
+      @onDirChange="onDirChange"
+      @onContextMenu="onContextMenu"
+      @download="(file) => batchDownload(true, [file])"
+      :selecting="selecting"
+    />
   </f7-page>
 </template>
 
 <script>
-import Upload from "../upload/index.vue";
 import Settings from "../settings/index.vue";
 import { mapActions, mapGetters, mapState } from "vuex";
 import ListView from "./list.vue";
@@ -91,7 +95,7 @@ export default {
         if (isDir) {
           console.log("this.$f7route.query.dir", this.$f7route.query.dir);
           this.$f7router.navigate(
-            { name: "fileList", query: { dir } },
+            { name: "Display", query: { dir } },
             { animate: false }
           );
         } else {
@@ -99,7 +103,7 @@ export default {
         }
       }
     },
-    onContextMenu(e) {
+    onContextMenu() {
       this.selecting = true;
     },
     openUpload() {
@@ -126,7 +130,6 @@ export default {
       }
     },
     toggleSelectAll(evt) {
-      const { setSelectFiles } = this;
       this.setSelectFiles([!evt.target.checked, []]);
     },
     isDownload() {
