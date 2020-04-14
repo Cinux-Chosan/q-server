@@ -7,7 +7,8 @@
   "display~home.js": "/js/display~home.js",
   "display~home~login.js": "/js/display~home~login.js",
   "display~home~login~upload.js": "/js/display~home~login~upload.js",
-  "display~home~upload.js": "/js/display~home~upload.js",
+  "display~login.js": "/js/display~login.js",
+  "display~login~upload.js": "/js/display~login~upload.js",
   "display~upload.js": "/js/display~upload.js",
   "home.js": "/js/home.js",
   "home~login.js": "/js/home~login.js",
@@ -25,7 +26,7 @@
   "fonts/MaterialIcons-Regular.woff2": "/fonts/MaterialIcons-Regular.570eb838.woff2",
   "fonts/MaterialIcons-Regular.ttf": "/fonts/MaterialIcons-Regular.a37b0c01.ttf",
   "fonts/MaterialIcons-Regular.eot": "/fonts/MaterialIcons-Regular.e79bfd88.eot",
-  "ie9+.1e540b8b200c59bdf789.html": "/ie9+.1e540b8b200c59bdf789.html",
+  "ie9+.510c899905a5fba60683.html": "/ie9+.510c899905a5fba60683.html",
   "manifest.json": "/manifest.json",
-  "mobile.571b973cce40529de392.html": "/mobile.571b973cce40529de392.html"
+  "mobile.f34b9fc89cb72b05f548.html": "/mobile.f34b9fc89cb72b05f548.html"
 }
