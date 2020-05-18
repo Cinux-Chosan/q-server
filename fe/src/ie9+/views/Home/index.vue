@@ -14,7 +14,9 @@
         </div>
         <Search v-if="$route.path === '/'" class="navSearch" />
       </div>
+      <keep-alive>
       <router-view />
+      </keep-alive>
       <BackTop @mousedown.stop />
     </RangeSelector>
   </div>
